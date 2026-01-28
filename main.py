@@ -2,7 +2,7 @@ import telebot
 from telebot import types
 
 
-TOKEN = "8564117995:AAFscBbp-EuEEHryIfBEtAFGhC1ci9-91D8"
+TOKEN = "8564117995:AAEWiVbO7dx1PuMSGnhRt2rj7snn6tRas0g"
 bot = telebot.TeleBot(TOKEN)
 
 # ===== Проверка подписки =====
