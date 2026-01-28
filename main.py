@@ -1,23 +1,9 @@
 import telebot
 from telebot import types
-from flask import Flask
-from threading import Thread
+
 
 TOKEN = "8564117995:AAFscBbp-EuEEHryIfBEtAFGhC1ci9-91D8"
 bot = telebot.TeleBot(TOKEN)
-
-# ===== Ping-сервер для Replit =====
-
-app = Flask(__name__)
-
-@app.route('/')
-def home():
-    return "Бот работает!"
-
-def run():
-    app.run(host='0.0.0.0', port=8080)
-
-Thread(target=run).start()
 
 # ===== Проверка подписки =====
 def check_sub(user_id):
