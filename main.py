@@ -108,7 +108,7 @@ def phone_value(message):
         markup_back = types.ReplyKeyboardMarkup(resize_keyboard=True)
         back_btn = types.KeyboardButton("Назад")
         markup_back.add(back_btn)
-        bot.send_message(message.chat.id, "✅Главные разработчики✅:\n\n @Acash_ff\n@JustF12", reply_markup=markup_back)
+        bot.send_message(message.chat.id, "✅Главные разработчики✅:\n\n @Acash_ff\n @JustF12", reply_markup=markup_back)
     elif message.text == "🤳Сотрудничество🤳":
         bot.send_message(message.chat.id, "Пишите сюда 👇\n\n@Acash_ff")
 
