@@ -132,7 +132,8 @@ def callback_handler(call):
         #==== Realme ===
     if call.data == "redmi":
         bot.answer_callback_query(call.id)
-        bot.send_message(call.message.chat.id,"Настройки на Redmi\n<blockquote>Обзор: 197\nКоллиматор: 187\n2х Прицел: 187\n4х Прицел: 187\nСнайперский Прицел: 187\nКнопка Свободный Камеры: 187\nКнопка Огня: 51\nDpi: 587</blockquote>",reply_markup=go_back_markup, parse_mode="html")
+        with open("redmi_sittings.jpg", "rb") as redmi_sittings:
+            bot.send_photo(call.message.chat.id,redmi_sittings,caption ="Настройки на Redmi\n<blockquote>Обзор: 197\nКоллиматор: 187\n2х Прицел: 187\n4х Прицел: 187\nСнайперский Прицел: 187\nКнопка Свободный Камеры: 187\nКнопка Огня: 51\nDpi: 587</blockquote>",reply_markup=go_back_markup, parse_mode="html")
     
     #======== Tecno ========
     if call.data == "tecno":
