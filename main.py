@@ -95,11 +95,13 @@ def phone_value(message):
         realme_btn = types.InlineKeyboardButton("Realme", callback_data="realme")
         poco_btn = types.InlineKeyboardButton("Poco", callback_data="poco")
         redmi_btn = types.InlineKeyboardButton("Redmi", callback_data="redmi")
+        tecno_btn = types.InlineKeyboardButton("Tecno", callback_data="tecno")
         go_back_samsung_btn = types.InlineKeyboardButton("Назад", callback_data="back")
         android_markup.add(samsung_btn)
         android_markup.add(realme_btn)
         android_markup.add(poco_btn)
         android_markup.add(redmi_btn)
+        android_markup.add(tecno_btn)
         android_markup.add(go_back_samsung_btn)
         with open("android_sittings.jpg", "rb") as android_sittings:
             bot.send_photo(message.chat.id,android_sittings,caption="<blockquote>Выберите свой Android в списке👇</blockquote>", reply_markup=android_markup, parse_mode="html")
@@ -131,6 +133,11 @@ def callback_handler(call):
     if call.data == "redmi":
         bot.answer_callback_query(call.id)
         bot.send_message(call.message.chat.id,"Настройки на Redmi\n<blockquote>Обзор: 197\nКоллиматор: 187\n2х Прицел: 187\n4х Прицел: 187\nСнайперский Прицел: 187\nКнопка Свободный Камеры: 187\nКнопка Огня: 51\nDpi: 587</blockquote>",reply_markup=go_back_markup, parse_mode="html")
+    
+    #======== Tecno ========
+    if call.data == "tecno":
+        bot.answer_callback_query(call.id)
+        bot.send_message(call.message.chat.id, "Настройки на Tecno\n<blockquote>обзор: 183\nколлиматор: 178\n2х: 165\n4х: 171\n8х: 150\nскорость указателя: 50%\nDpi: 480</blockquote>",reply_markup=go_back_btn, parse_mode="html")
     
     if call.data == "realme":
         bot.answer_callback_query(call.id)
