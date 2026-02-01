@@ -96,12 +96,14 @@ def phone_value(message):
         poco_btn = types.InlineKeyboardButton("Poco", callback_data="poco")
         redmi_btn = types.InlineKeyboardButton("Redmi", callback_data="redmi")
         tecno_btn = types.InlineKeyboardButton("Tecno", callback_data="tecno")
+        huawei_btn = types.InlineKeyboardButton("Huawei", callback_data="huawei")
         go_back_samsung_btn = types.InlineKeyboardButton("Назад", callback_data="back")
         android_markup.add(samsung_btn)
         android_markup.add(realme_btn)
         android_markup.add(poco_btn)
         android_markup.add(redmi_btn)
         android_markup.add(tecno_btn)
+        android_markup.add(huawei_btn)
         android_markup.add(go_back_samsung_btn)
         with open("android_sittings.jpg", "rb") as android_sittings:
             bot.send_photo(message.chat.id,android_sittings,caption="<blockquote>Выберите свой Android в списке👇</blockquote>", reply_markup=android_markup, parse_mode="html")
@@ -149,6 +151,11 @@ def callback_handler(call):
         bot.answer_callback_query(call.id)
         with open("poco_sittings.jpg", "rb") as poco_sittings:
             bot.send_photo(call.message.chat.id, poco_sittings ,caption="Настройки на Poco\n<blockquote>Обзор 194\nКолиматор 174\n2х 134\n4х 179\nСнайп прицел 154\nСвободный обзор 52\nКнопка огня 52\nДпиай 433</blockquote>", reply_markup=go_back_markup, parse_mode="html")
+    #====== Huawei ======
+    if call.data == "huawei":
+        bot.answer_callback_query(call.id)
+        bot.send_message(call.message.chat.id, "Настройки на Huawei\n<blockquote>обзор: 200\nколлиматор: 167\n2х: 174\n4х: 106\n8х: 91\nсвободный обзор: на свое усмотрение ( рекомендую 150 )\nDpi: 458</blockquote>",parse_mode="html", reply_markup=go_back_markup)
+    
     # ===== iPhone 7 =====
     if call.data == "iphone_7":
         iph_7_markup = types.InlineKeyboardMarkup()
