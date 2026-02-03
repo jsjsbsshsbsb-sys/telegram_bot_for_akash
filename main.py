@@ -97,6 +97,7 @@ def phone_value(message):
         redmi_btn = types.InlineKeyboardButton("Redmi", callback_data="redmi")
         tecno_btn = types.InlineKeyboardButton("Tecno", callback_data="tecno")
         huawei_btn = types.InlineKeyboardButton("Huawei", callback_data="huawei")
+        honor_btn = types.InlineKeyboardButton("Honor", callback_data="honor")
         go_back_samsung_btn = types.InlineKeyboardButton("Назад", callback_data="back")
         android_markup.add(samsung_btn)
         android_markup.add(realme_btn)
@@ -104,6 +105,7 @@ def phone_value(message):
         android_markup.add(redmi_btn)
         android_markup.add(tecno_btn)
         android_markup.add(huawei_btn)
+        android_markup.add(honor_btn)
         android_markup.add(go_back_samsung_btn)
         with open("android_sittings.jpg", "rb") as android_sittings:
             bot.send_photo(message.chat.id,android_sittings,caption="<blockquote>Выберите свой Android в списке👇</blockquote>", reply_markup=android_markup, parse_mode="html")
@@ -141,7 +143,7 @@ def callback_handler(call):
     if call.data == "tecno":
         bot.answer_callback_query(call.id)
         bot.send_message(call.message.chat.id, "Настройки на Tecno\n<blockquote>обзор: 183\nколлиматор: 178\n2х: 165\n4х: 171\n8х: 150\nскорость указателя: 50%\nDpi: 480</blockquote>",reply_markup=go_back_btn, parse_mode="html")
-    
+    #======== Realme =======
     if call.data == "realme":
         bot.answer_callback_query(call.id)
         with open("realme_sittings.jpg", "rb") as realme_sittings:
@@ -154,7 +156,11 @@ def callback_handler(call):
     #====== Huawei ======
     if call.data == "huawei":
         bot.answer_callback_query(call.id)
-        bot.send_message(call.message.chat.id, "Настройки на Huawei\n<blockquote>обзор: 200\nколлиматор: 167\n2х: 174\n4х: 106\n8х: 91\nсвободный обзор: на свое усмотрение ( рекомендую 150 )\nDpi: 458</blockquote>",parse_mode="html", reply_markup=go_back_markup)
+        bot.send_message(call.message.chat.id, "Настройки на Huawei\n<blockquote>обзор: 200\nколлиматор: 167\n2х: 174\n4х: 106\n8х: 91\nсвободный обзор: на свое усмотрение ( рекомендую 150 )\nDpi: 458\n кнопка: 42</blockquote>",parse_mode="html", reply_markup=go_back_markup)
+    #======== Honor =========
+    if call.data == "honor":
+        bot.answer_callback_query(call.id)
+        bot.send_message(call.message.chat.id, "Настройки на Honor\n<blockquote>обзор: 192\nколлиматор: 177\n2х: 178\n4х: 154\n8х: 150\nсвободный обзор: на свое усмотрение ( рекомендую 150 )\nDpi: 485\n кнопка:68</blockquote>", parse_mode="html", reply_markup=go_back_btn)
     
     # ===== iPhone 7 =====
     if call.data == "iphone_7":
