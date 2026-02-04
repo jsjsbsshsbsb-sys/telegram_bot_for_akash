@@ -146,7 +146,7 @@ def callback_handler(call):
         elif call.data == "samsung_a_10_s":
             bot.answer_callback_query(call.id)
             with open("samsung_sittings.jpg", "rb") as samsung_sittings:
-                bot.send_photo(call.message.chat.id, samsung_sittings, caption="<blockquote>обзор: 199\nколлиматор: 190\n2х: 192\n4х: 193\n8х: 155\nсвободный обзор: на свое усмотрение ( рекомендую 150 )\nDpi: 449\nкнопка: 39</blockquote>", parse_mode="html", reply_markup=go_back_btn)
+                bot.send_photo(call.message.chat.id, samsung_sittings, caption="<blockquote>обзор: 199\nколлиматор: 190\n2х: 192\n4х: 193\n8х: 155\nсвободный обзор: на свое усмотрение ( рекомендую 150 )\nDpi: 449\nкнопка: 39</blockquote>", parse_mode="html", reply_markup=go_back_markup)
         #==== Realme ===
     if call.data == "redmi":
         bot.answer_callback_query(call.id)
