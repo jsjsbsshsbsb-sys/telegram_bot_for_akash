@@ -139,36 +139,32 @@ def callback_handler(call):
             samsung_markup.add(samsung_a_10_s_btn)
             bot.send_photo(call.message.chat.id,samsung_sittings ,caption="<blockquote>Выберите свою модель ниже👇</blockquote>", reply_markup=samsung_markup, parse_mode="html")
         #========== Оброботка Samsung =======
-        if call.data == "samsung_a_15":
-            bot.answer_callback_query(call.id)
-            with open("samsung_sittings.jpg", "rb") as samsung_sittings:
-                bot.send_photo(call.message.chat.id,samsung_sittings, caption="<blockquote>обзор: 119\nколлиматор: 100\n2х: 172\n4х: 188\n8х: 120\nсвободный обзор: на свое усмотрение ( рекомендую 150 )\nDpi: 582\nкнопка: 52</blockquote>",parse_mode="html", reply_markup=go_back_markup)
-        elif call.data == "samsung_a_10_s":
-            bot.answer_callback_query(call.id)
-            with open("samsung_sittings.jpg", "rb") as samsung_sittings:
-                bot.send_photo(call.message.chat.id, samsung_sittings, caption="<blockquote>обзор: 199\nколлиматор: 190\n2х: 192\n4х: 193\n8х: 155\nсвободный обзор: на свое усмотрение ( рекомендую 150 )\nDpi: 449\nкнопка: 39</blockquote>", parse_mode="html", reply_markup=go_back_markup)
-        #==== Realme ===
+    if call.data == "samsung_a_15":
+        bot.answer_callback_query(call.id)
+        with open("samsung_sittings.jpg", "rb") as samsung_sittings:
+            bot.send_photo(call.message.chat.id,samsung_sittings, caption="<blockquote>обзор: 119\nколлиматор: 100\n2х: 172\n4х: 188\n8х: 120\nсвободный обзор: на свое усмотрение ( рекомендую 150 )\nDpi: 582\nкнопка: 52</blockquote>",parse_mode="html", reply_markup=go_back_markup)
+    elif call.data == "samsung_a_10_s":
+        bot.answer_callback_query(call.id)
+        with open("samsung_sittings.jpg", "rb") as samsung_sittings:
+            bot.send_photo(call.message.chat.id, samsung_sittings, caption="<blockquote>обзор: 199\nколлиматор: 190\n2х: 192\n4х: 193\n8х: 155\nсвободный обзор: на свое усмотрение ( рекомендую 150 )\nDpi: 449\nкнопка: 39</blockquote>", parse_mode="html", reply_markup=go_back_markup)
+    #==== Redmi ====
     if call.data == "redmi":
         bot.answer_callback_query(call.id)
         with open("redmi_sittings.jpg", "rb") as redmi_sittings:
-            realme_markup = types.InlineKeyboardMarkup()
-            realme_12_btn = types.InlineKeyboardButton("Realme 12", callback_data="realme_12")
-            realme_8_btn = types.InlineKeyboardButton("Realme 8", callback_data="realme_8")
-            realme_markup.add(realme_12_btn)
-            realme_markup.add(realme_8_btn)
-            bot.send_photo(call.message.chat.id,redmi_sittings,caption ="<blockquote>Выберите свою модель ниже👇</blockquote>",reply_markup=realme_markup, parse_mode="html")
-        if call.data == "realme_12":
-            bot.answer_callback_query(call.id)
-            with open("realme_sittings.jpg", "rb") as realme_sittings:
-                bot.send_photo(call.message.chat.id, realme_sittings, caption="<blockquote>обзор: 188\nколлиматор: 180\n2х: 174\n4х: 168\n8х: 111\nсвободный обзор: на свое усмотрение ( рекомендую 150 )\nDpi: 455\nкнопка: 50</blockquote>", parse_mode="html", reply_markup=go_back_markup)
-        elif call.data == "realme_8":
-            bot.answer_callback_query(call.id)
-            with open("realme_sittings.jpg", "rb") as realme_sittings:
-                bot.send_photo(call.message.chat.id, realme_sittings, caption="<blockquote>обзор: 177\nколлиматор: 159\n2х: 174\n4х: 181\n8х: 172\nсвободный обзор: на свое усмотрение ( рекомендую 150 )\nDpi: 500\nкнопка: 48</blockquote>", parse_mode="html", reply_markup=go_back_markup)
-        elif call.data == "realme_8":
-            bot.answer_callback_query(call.id)
-            with open("realme_sittings.jpg", "rb") as realme_sittings:
-                bot.send_photo(call.message.chat.id, realme_sittings, caption="<blockquote>обзор: 177\nколлиматор: 159\n2х: 174\n4х: 181\n8х: 172\nсвободный обзор: на свое усмотрение ( рекомендую 150 )\nDpi: 500\nкнопка: 48</blockquote>", parse_mode="html", reply_markup=go_back_markup)
+            redmi_markup = types.InlineKeyboardMarkup()
+            redmi_note_14 = types.InlineKeyboardButton("Redmi Note 14", callback_data="redmi_note_14")
+            redmi_10_a = types.InlineKeyboardButton("Redmi 10A", callback_data="redmi_10_a")
+            redmi_markup.add(redmi_note_14)
+            redmi_markup.add(redmi_10_a)
+            bot.send_photo(call.message.chat.id, redmi_sittings, caption="<blockquote>Выберите свою мадель ниже👇</blockquote>", parse_mode="html", reply_markup=redmi_markup)
+    if call.data == "redmi_note_14":
+        bot.answer_callback_query(call.id)
+        with open("redmi_sittings.jpg", "rb") as redmi_sittings:
+            bot.send_photo(call.message.chat.id, redmi_sittings, caption="Настройки на Redmi Note 14\n<blockquote>обзор: 189\nколлиматор: 181\n2х: 175\n4х: 167\n8х: 111\nсвободный обзор: на свое усмотрение ( рекомендую 150 )\nDpi: 510\nкнопка: 40</blockquote>", parse_mode="html", reply_markup=go_back_markup)
+    elif call.data == "redmi_10_a":
+        bot.answer_callback_query(call.id)
+        with open("redmi_sittings.jpg", "rb") as redmi_sittings:
+            bot.send_photo(call.message.chat.id, redmi_sittings, caption="Настройки на Redmi 10A\n<blockquote>обзор: 198\nколлиматор: 190\n2х: 177\n4х: 170\n8х: 110\nсвободный обзор: на свое усмотрение ( рекомендую 150 )\nDpi: 510\nкнопка: 51</blockquote>",parse_mode="html", reply_markup=go_back_markup)
     #======== Tecno ========
     if call.data == "tecno":
         bot.answer_callback_query(call.id)
@@ -177,33 +173,68 @@ def callback_handler(call):
         tecno_spark_7 = types.InlineKeyboardButton("Tecno Spark 7", callback_data="tecno_spark_7")
         tecno_markup.add(tecno_spark_30)
         tecno_markup.add(tecno_spark_7)
-        bot.send_message(call.message.chat.id, "<blockquote>Выберите свою модель ниже👇</blockquote>",reply_markup=tecno_markup, parse_mode="html")
+        bot.send_message(call.message.chat.id, "<blockquote>Выберите свою модель ниже👇</blockquote>", parse_mode="html", reply_markup=tecno_markup)
     if call.data == "tecno_spark_30":
-        bot.answer_shipping_query(call.id)
+        bot.answer_callback_query(call.id)
         bot.send_message(call.message.chat.id, "<blockquote>обзор: 183\nколлиматор: 178\n2х: 165\n4х: 171\n8х: 150\nсвободный обзор: на свое усмотрение ( рекомендую 150 )\nDpi: 480\nкнопка: 40</blockquote>",parse_mode="html", reply_markup=go_back_markup)
     if call.data == "tecno_spark_7":
-        bot.answer_shipping_query(call.id)
+        bot.answer_callback_query(call.id)
         bot.send_message(call.message.chat.id, "<blockquote>обзор: 192\nколлиматор: 188\n2х: 198\n4х: 155\n8х: 105\nсвободный обзор: на свое усмотрение ( рекомендую 150 )\nDpi: 470\nкнопка: 37</blockquote>",parse_mode="html", reply_markup=go_back_markup)
     
     #======== Realme =======
     if call.data == "realme":
         bot.answer_callback_query(call.id)
         with open("realme_sittings.jpg", "rb") as realme_sittings:
-            bot.send_photo(call.message.chat.id, realme_sittings ,caption="Настройки на Realme\n<blockquote>Обзор 200\nКолиматор 50\n2х 60\n4х 60\nСнайп прицел 200\nСвободный обзор 200\nКнопка огня 51\nДпиай 470</blockquote>", reply_markup=go_back_markup, parse_mode="html")
+            realme_markup = types.InlineKeyboardMarkup()
+            realme_12_btn = types.InlineKeyboardButton("Realme 12", callback_data="realme_12")
+            realme_8_btn = types.InlineKeyboardButton("Realme 8", callback_data="realme_8")
+            realme_markup.add(realme_12_btn)
+            realme_markup.add(realme_8_btn)
+            bot.send_photo(call.message.chat.id,realme_sittings,caption ="<blockquote>Выберите свою модель ниже👇</blockquote>",reply_markup=realme_markup, parse_mode="html")
+    if call.data == "realme_12":
+        bot.answer_callback_query(call.id)
+        with open("realme_sittings.jpg", "rb") as realme_sittings:
+            bot.send_photo(call.message.chat.id, realme_sittings, caption="<blockquote>обзор: 188\nколлиматор: 180\n2х: 174\n4х: 168\n8х: 111\nсвободный обзор: на свое усмотрение ( рекомендую 150 )\nDpi: 455\nкнопка: 50</blockquote>", parse_mode="html", reply_markup=go_back_markup)
+    elif call.data == "realme_8":
+        bot.answer_callback_query(call.id)
+        with open("realme_sittings.jpg", "rb") as realme_sittings:
+            bot.send_photo(call.message.chat.id, realme_sittings, caption="<blockquote>обзор: 177\nколлиматор: 159\n2х: 174\n4х: 181\n8х: 172\nсвободный обзор: на свое усмотрение ( рекомендую 150 )\nDpi: 500\nкнопка: 48</blockquote>", parse_mode="html", reply_markup=go_back_markup)
+    elif call.data == "realme_8":
+        bot.answer_callback_query(call.id)
+        with open("realme_sittings.jpg", "rb") as realme_sittings:
+            bot.send_photo(call.message.chat.id, realme_sittings, caption="<blockquote>обзор: 177\nколлиматор: 159\n2х: 174\n4х: 181\n8х: 172\nсвободный обзор: на свое усмотрение ( рекомендую 150 )\nDpi: 500\nкнопка: 48</blockquote>", parse_mode="html", reply_markup=go_back_markup)
         #===== Poco =======
     if call.data == "poco":
         bot.answer_callback_query(call.id)
         with open("poco_sittings.jpg", "rb") as poco_sittings:
-            bot.send_photo(call.message.chat.id, poco_sittings ,caption="Настройки на Poco\n<blockquote>Обзор 194\nКолиматор 174\n2х 134\n4х 179\nСнайп прицел 154\nСвободный обзор 52\nКнопка огня 52\nДпиай 433</blockquote>", reply_markup=go_back_markup, parse_mode="html")
+            poco_markup = types.InlineKeyboardMarkup()
+            poco_x4_gt = types.InlineKeyboardButton("Poco X4 GT", callback_data="poco_x4_gt")
+            poco_markup.add(poco_x4_gt)
+            bot.send_photo(call.message.chat.id, poco_sittings ,caption="<blockquote>Выберите свою модель ниже👇</blockquote>", reply_markup=poco_markup, parse_mode="html")
+    if call.data == "poco_x4_gt":
+        bot.answer_callback_query(call.id)
+        with open("poco_sittings.jpg", "rb") as poco_sittings:
+            bot.send_photo(call.message.chat.id, poco_sittings, caption="Настройки на Poco X4 GT<blockquote>обзор: 197\nколлиматор: 188\n2х: 178\n4х: 170\n8х: 155\nсвободный обзор: на свое усмотрение ( рекомендую 150 )\nDpi: 520\nкнопка: 45</blockquote>", parse_mode="html", reply_markup=go_back_markup)
     #====== Huawei ======
     if call.data == "huawei":
         bot.answer_callback_query(call.id)
-        bot.send_message(call.message.chat.id, "Настройки на Huawei\n<blockquote>обзор: 200\nколлиматор: 167\n2х: 174\n4х: 106\n8х: 91\nсвободный обзор: на свое усмотрение ( рекомендую 150 )\nDpi: 458\n кнопка: 42</blockquote>",parse_mode="html", reply_markup=go_back_markup)
+        huawei_markup = types.InlineKeyboardMarkup()
+        huawei_nova_8_i = types.InlineKeyboardButton("Huawei Nova 8I", callback_data="huawei_nova_8_i")
+        huawei_markup.add(huawei_nova_8_i)
+        bot.send_message(call.message.chat.id, "<blockquote>Выберите свою мадель ниже👇</blockquote>",parse_mode="html", reply_markup=huawei_markup)
+    if call.data == "huawei_nova_8_i":
+        bot.answer_callback_query(call.id)
+        bot.send_message(call.message.chat.id, "Настройки на Huawei Nova 8I\n<blockquote>обзор: 200\nколлиматор: 167\n2х: 174\n4х: 106\n8х: 91\nсвободный обзор: на свое усмотрение ( рекомендую 150 )\nDpi: 458\nкнопка: 44</blockquote>", parse_mode="html", reply_markup=go_back_markup)
     #======== Honor =========
     if call.data == "honor":
         bot.answer_callback_query(call.id)
-        bot.send_message(call.message.chat.id, "Настройки на Honor\n<blockquote>обзор: 192\nколлиматор: 177\n2х: 178\n4х: 154\n8х: 150\nсвободный обзор: на свое усмотрение ( рекомендую 150 )\nDpi: 485\n кнопка:68</blockquote>", parse_mode="html", reply_markup=go_back_btn)
-    
+        honor_markup = types.InlineKeyboardMarkup()
+        honor_10_x_lite = types.InlineKeyboardButton("Honor 10X Lite", callback_data="honor_10_x_lite")
+        honor_markup.add(honor_10_x_lite)
+        bot.send_message(call.message.chat.id, "<blockquote>Выберите свою модель ниже👇</blockquote>", parse_mode="html", reply_markup=honor_10_x_lite)
+    if call.data == "honor_10_x_lite":
+        bot.answer_callback_query(call.id)
+        bot.send_message(call.message.chat.id, "Настрйоки на Honor 10X Lite\n<blockquote>обзор: 192\nколлиматор: 177\n2х: 178\n4х: 154\n8х: 150\nсвободный обзор: на свое усмотрение ( рекомендую 150 )\nDpi: 485\nкнопка: 39</blockquote>", parse_mode="html", reply_markup=go_back_markup)
     # ===== iPhone 7 =====
     if call.data == "iphone_7":
         iph_7_markup = types.InlineKeyboardMarkup()
