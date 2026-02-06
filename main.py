@@ -231,7 +231,7 @@ def callback_handler(call):
         honor_markup = types.InlineKeyboardMarkup()
         honor_10_x_lite = types.InlineKeyboardButton("Honor 10X Lite", callback_data="honor_10_x_lite")
         honor_markup.add(honor_10_x_lite)
-        bot.send_message(call.message.chat.id, "<blockquote>Выберите свою модель ниже👇</blockquote>", parse_mode="html", reply_markup=honor_10_x_lite)
+        bot.send_message(call.message.chat.id, "<blockquote>Выберите свою модель ниже👇</blockquote>", parse_mode="html", reply_markup=honor_markup)
     if call.data == "honor_10_x_lite":
         bot.answer_callback_query(call.id)
         bot.send_message(call.message.chat.id, "Настрйоки на Honor 10X Lite\n<blockquote>обзор: 192\nколлиматор: 177\n2х: 178\n4х: 154\n8х: 150\nсвободный обзор: на свое усмотрение ( рекомендую 150 )\nDpi: 485\nкнопка: 39</blockquote>", parse_mode="html", reply_markup=go_back_markup)
