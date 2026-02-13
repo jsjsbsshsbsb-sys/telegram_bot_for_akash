@@ -1,8 +1,8 @@
 import telebot
 from telebot import types
+import os
 
-
-TOKEN = API_TOKEN
+TOKEN = os.environ.get("API_TOKEN")
 bot = telebot.TeleBot(TOKEN)
 
 # ===== Проверка подписки =====
