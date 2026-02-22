@@ -17,7 +17,7 @@ def check_sub(user_id):
 def private_hendler(message):
     if not check_sub(message.from_user.id):
         markup = types.InlineKeyboardMarkup()
-        subscribe_btn = types.InlineKeyboardButton("📢 Подписаться", url="https://t.me/Acash_05")
+        subscribe_btn = types.InlineKeyboardButton("📢 Подписаться", url="https://t.me/nastroytut")
         check_sub_btn = types.InlineKeyboardButton("🟢 Проверить", callback_data="check_sub")
         markup.add(subscribe_btn)
         markup.add(check_sub_btn)
