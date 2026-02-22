@@ -7,7 +7,7 @@ bot = telebot.TeleBot(TOKEN)
 # ===== Проверка подписки =====
 def check_sub(user_id):
     try:
-        member = bot.get_chat_member("@Acash_05", user_id)
+        member = bot.get_chat_member("@nastroyitut", user_id)
         return member.status != "left"
     except Exception as e:
         print(e)
