@@ -8,8 +8,9 @@ bot = telebot.TeleBot(TOKEN)
 def check_sub(user_id):
     try:
         member = bot.get_chat_member("@Acash_05", user_id)
-        return member.status in ("member", "administrator", "creator")
-    except:
+        return member.status != "left"
+    except Exception as e:
+        print(e)
         return False
 
 # ===== Старт бота =====
