@@ -2,15 +2,25 @@ import telebot
 from telebot import types
 import time
 import os
+import threading
+from datetime import datetime, timedelta
 
 TOKEN = "8564117995:AAEkciU1is19cCSwyz7UFZOktYKEXX2djiA"
 bot = telebot.TeleBot(TOKEN)
 ADMINS = [7041448219]
 
-# Глобальные переменные для рассылки
+# Глобальные переменные для рассылки и рекламы
 newsletter_photo_id = None
 newsletter_caption = None
 newsletter_text = None
+
+# Переменные для автоматической рекламы
+ad_photo_id = None
+ad_caption = None
+ad_interval = 3600  # Интервал по умолчанию: 1 час (в секундах)
+ad_thread = None
+ad_active = False
+last_ad_message_id = None  # ID последнего рекламного сообщения
 
 
 # ===== ПРОВЕРКА ПОДПИСКИ =====
@@ -46,6 +56,54 @@ def get_users():
     except:
         print("❌ Файл users.txt не найден, создаю новый")
         return []
+
+
+# ===== ФУНКЦИЯ АВТОМАТИЧЕСКОЙ РЕКЛАМЫ =====
+def ad_worker():
+    global ad_active, last_ad_message_id
+
+    while ad_active:
+        try:
+            if ad_photo_id and ad_caption:
+                # Удаляем предыдущее рекламное сообщение, если оно есть
+                if last_ad_message_id:
+                    try:
+                        bot.delete_message(last_ad_message_id[0], last_ad_message_id[1])
+                        print(f"🗑️ Удалено предыдущее рекламное сообщение")
+                    except:
+                        pass
+
+                # Отправляем новое рекламное сообщение всем пользователям
+                users = get_users()
+                sent_count = 0
+                last_message_info = None
+
+                print(f"🔄 Отправка автоматической рекламы...")
+                for user_id in users:
+                    try:
+                        msg = bot.send_photo(user_id, ad_photo_id, caption=ad_caption, parse_mode="html")
+                        sent_count += 1
+                        # Сохраняем информацию о последнем отправленном сообщении (для админа)
+                        last_message_info = (user_id, msg.message_id)
+                        print(f"✅ Реклама отправлена пользователю {user_id}")
+                    except Exception as e:
+                        print(f"❌ Ошибка отправки рекламы пользователю {user_id}: {e}")
+
+                # Сохраняем ID последнего сообщения для возможного удаления
+                if last_message_info:
+                    last_ad_message_id = last_message_info
+
+                print(f"✅ Автоматическая реклама отправлена {sent_count} пользователям")
+
+            # Ожидаем следующий интервал
+            for _ in range(ad_interval):
+                if not ad_active:
+                    break
+                time.sleep(1)
+
+        except Exception as e:
+            print(f"❌ Ошибка в потоке рекламы: {e}")
+            time.sleep(60)
 
 
 # ===== ГЛАВНОЕ МЕНЮ =====
@@ -131,12 +189,278 @@ def admin_panel(message):
     btn2 = types.InlineKeyboardButton("📢 Рассылка (текст)", callback_data="newsletter_text")
     btn3 = types.InlineKeyboardButton("📊 Статистика", callback_data="stats")
     btn4 = types.InlineKeyboardButton("👥 Список пользователей", callback_data="users_list")
+    btn5 = types.InlineKeyboardButton("🔄 НАСТРОЙКА РЕКЛАМЫ", callback_data="ad_settings")
     markup.add(btn1)
     markup.add(btn2)
     markup.add(btn3)
     markup.add(btn4)
+    markup.add(btn5)
 
     bot.send_message(message.chat.id,
+                     "👑 Добро пожаловать в админ панель!\nВыберите действие:",
+                     reply_markup=markup)
+
+
+# ===== НАСТРОЙКА АВТОМАТИЧЕСКОЙ РЕКЛАМЫ =====
+@bot.callback_query_handler(func=lambda call: call.data == "ad_settings")
+def ad_settings_handler(call):
+    if call.message.chat.id not in ADMINS:
+        bot.answer_callback_query(call.id, "❌ Нет доступа")
+        return
+
+    bot.answer_callback_query(call.id)
+
+    markup = types.InlineKeyboardMarkup()
+    btn1 = types.InlineKeyboardButton("📸 Установить фото для рекламы", callback_data="set_ad_photo")
+    btn2 = types.InlineKeyboardButton("⏱️ Установить интервал", callback_data="set_ad_interval")
+
+    if ad_active:
+        btn3 = types.InlineKeyboardButton("⏸️ Остановить рекламу", callback_data="stop_ad")
+    else:
+        btn3 = types.InlineKeyboardButton("▶️ Запустить рекламу", callback_data="start_ad")
+
+    btn4 = types.InlineKeyboardButton("🗑️ Удалить текущую рекламу", callback_data="delete_ad")
+    btn5 = types.InlineKeyboardButton("🔙 Назад в админку", callback_data="back_to_admin")
+
+    markup.add(btn1)
+    markup.add(btn2)
+    markup.add(btn3)
+    markup.add(btn4)
+    markup.add(btn5)
+
+    interval_hours = ad_interval // 3600
+    status = "🟢 АКТИВНА" if ad_active else "🔴 НЕ АКТИВНА"
+
+    ad_info = f"📢 НАСТРОЙКИ АВТОМАТИЧЕСКОЙ РЕКЛАМЫ\n\n"
+    ad_info += f"Статус: {status}\n"
+    ad_info += f"Интервал: {interval_hours} час(ов)\n"
+
+    if ad_photo_id:
+        ad_info += f"✅ Фото установлено\n"
+        if ad_caption:
+            ad_info += f"📝 Подпись: {ad_caption[:50]}...\n"
+    else:
+        ad_info += f"❌ Фото не установлено\n"
+
+    bot.send_message(call.message.chat.id, ad_info, reply_markup=markup)
+
+
+# ===== УСТАНОВКА ФОТО ДЛЯ РЕКЛАМЫ =====
+@bot.callback_query_handler(func=lambda call: call.data == "set_ad_photo")
+def set_ad_photo_handler(call):
+    if call.message.chat.id not in ADMINS:
+        bot.answer_callback_query(call.id, "❌ Нет доступа")
+        return
+
+    bot.answer_callback_query(call.id)
+    msg = bot.send_message(call.message.chat.id,
+                           "📸 Отправьте фото для автоматической рекламы.\n\n"
+                           "✅ Добавьте подпись к фото!\n"
+                           "❌ Для отмены отправьте /cancel")
+    bot.register_next_step_handler(msg, process_ad_photo)
+
+
+def process_ad_photo(message):
+    if message.text == "/cancel":
+        bot.send_message(message.chat.id, "❌ Установка рекламы отменена")
+        return
+
+    if not message.photo:
+        bot.send_message(message.chat.id, "❌ Это не фото! Отправьте фото с подписью.")
+        return
+
+    if not message.caption:
+        bot.send_message(message.chat.id, "❌ Добавьте подпись к фото!")
+        return
+
+    global ad_photo_id, ad_caption
+    ad_photo_id = message.photo[-1].file_id
+    ad_caption = message.caption
+
+    bot.send_message(message.chat.id,
+                     f"✅ Фото для рекламы установлено!\n\n"
+                     f"Подпись: {message.caption}\n\n"
+                     f"Теперь можете настроить интервал и запустить рекламу.")
+
+
+# ===== УСТАНОВКА ИНТЕРВАЛА РЕКЛАМЫ =====
+@bot.callback_query_handler(func=lambda call: call.data == "set_ad_interval")
+def set_ad_interval_handler(call):
+    if call.message.chat.id not in ADMINS:
+        bot.answer_callback_query(call.id, "❌ Нет доступа")
+        return
+
+    bot.answer_callback_query(call.id)
+    msg = bot.send_message(call.message.chat.id,
+                           "⏱️ Введите интервал рекламы в ЧАСАХ (только число):\n\n"
+                           "Пример: 1 - каждый час\n"
+                           "Пример: 24 - раз в сутки\n"
+                           "❌ Для отмены отправьте /cancel")
+    bot.register_next_step_handler(msg, process_ad_interval)
+
+
+def process_ad_interval(message):
+    if message.text == "/cancel":
+        bot.send_message(message.chat.id, "❌ Установка интервала отменена")
+        return
+
+    try:
+        hours = int(message.text)
+        if hours < 1:
+            bot.send_message(message.chat.id, "❌ Интервал должен быть не менее 1 часа")
+            return
+
+        global ad_interval
+        ad_interval = hours * 3600  # Переводим часы в секунды
+
+        bot.send_message(message.chat.id,
+                         f"✅ Интервал рекламы установлен: {hours} час(ов)")
+    except ValueError:
+        bot.send_message(message.chat.id, "❌ Введите ЧИСЛО (например: 1, 2, 24)")
+
+
+# ===== ЗАПУСК АВТОМАТИЧЕСКОЙ РЕКЛАМЫ =====
+@bot.callback_query_handler(func=lambda call: call.data == "start_ad")
+def start_ad_handler(call):
+    if call.message.chat.id not in ADMINS:
+        bot.answer_callback_query(call.id, "❌ Нет доступа")
+        return
+
+    global ad_active, ad_thread
+
+    if not ad_photo_id:
+        bot.answer_callback_query(call.id, "❌ Сначала установите фото для рекламы!", show_alert=True)
+        return
+
+    if ad_active:
+        bot.answer_callback_query(call.id, "⚠️ Реклама уже запущена!", show_alert=True)
+        return
+
+    ad_active = True
+    ad_thread = threading.Thread(target=ad_worker)
+    ad_thread.daemon = True
+    ad_thread.start()
+
+    bot.answer_callback_query(call.id, "✅ Автоматическая реклама ЗАПУЩЕНА!", show_alert=True)
+
+    # Обновляем сообщение с настройками
+    markup = types.InlineKeyboardMarkup()
+    btn1 = types.InlineKeyboardButton("📸 Установить фото", callback_data="set_ad_photo")
+    btn2 = types.InlineKeyboardButton("⏱️ Установить интервал", callback_data="set_ad_interval")
+    btn3 = types.InlineKeyboardButton("⏸️ Остановить рекламу", callback_data="stop_ad")
+    btn4 = types.InlineKeyboardButton("🗑️ Удалить рекламу", callback_data="delete_ad")
+    btn5 = types.InlineKeyboardButton("🔙 Назад", callback_data="back_to_admin")
+    markup.add(btn1)
+    markup.add(btn2)
+    markup.add(btn3)
+    markup.add(btn4)
+    markup.add(btn5)
+
+    interval_hours = ad_interval // 3600
+    ad_info = f"📢 НАСТРОЙКИ АВТОМАТИЧЕСКОЙ РЕКЛАМЫ\n\n"
+    ad_info += f"Статус: 🟢 АКТИВНА\n"
+    ad_info += f"Интервал: {interval_hours} час(ов)\n"
+    ad_info += f"✅ Фото установлено\n"
+    ad_info += f"📝 Подпись: {ad_caption[:50]}...\n"
+
+    bot.edit_message_text(ad_info, call.message.chat.id, call.message.message_id, reply_markup=markup)
+
+
+# ===== ОСТАНОВКА АВТОМАТИЧЕСКОЙ РЕКЛАМЫ =====
+@bot.callback_query_handler(func=lambda call: call.data == "stop_ad")
+def stop_ad_handler(call):
+    if call.message.chat.id not in ADMINS:
+        bot.answer_callback_query(call.id, "❌ Нет доступа")
+        return
+
+    global ad_active
+
+    if not ad_active:
+        bot.answer_callback_query(call.id, "⚠️ Реклама и так остановлена!", show_alert=True)
+        return
+
+    ad_active = False
+    bot.answer_callback_query(call.id, "⏸️ Автоматическая реклама ОСТАНОВЛЕНА!", show_alert=True)
+
+    # Обновляем сообщение с настройками
+    markup = types.InlineKeyboardMarkup()
+    btn1 = types.InlineKeyboardButton("📸 Установить фото", callback_data="set_ad_photo")
+    btn2 = types.InlineKeyboardButton("⏱️ Установить интервал", callback_data="set_ad_interval")
+    btn3 = types.InlineKeyboardButton("▶️ Запустить рекламу", callback_data="start_ad")
+    btn4 = types.InlineKeyboardButton("🗑️ Удалить рекламу", callback_data="delete_ad")
+    btn5 = types.InlineKeyboardButton("🔙 Назад", callback_data="back_to_admin")
+    markup.add(btn1)
+    markup.add(btn2)
+    markup.add(btn3)
+    markup.add(btn4)
+    markup.add(btn5)
+
+    interval_hours = ad_interval // 3600
+    ad_info = f"📢 НАСТРОЙКИ АВТОМАТИЧЕСКОЙ РЕКЛАМЫ\n\n"
+    ad_info += f"Статус: 🔴 НЕ АКТИВНА\n"
+    ad_info += f"Интервал: {interval_hours} час(ов)\n"
+    ad_info += f"✅ Фото установлено\n"
+    ad_info += f"📝 Подпись: {ad_caption[:50]}...\n"
+
+    bot.edit_message_text(ad_info, call.message.chat.id, call.message.message_id, reply_markup=markup)
+
+
+# ===== УДАЛЕНИЕ ТЕКУЩЕЙ РЕКЛАМЫ =====
+@bot.callback_query_handler(func=lambda call: call.data == "delete_ad")
+def delete_ad_handler(call):
+    if call.message.chat.id not in ADMINS:
+        bot.answer_callback_query(call.id, "❌ Нет доступа")
+        return
+
+    global ad_photo_id, ad_caption, ad_active, last_ad_message_id
+
+    ad_photo_id = None
+    ad_caption = None
+    ad_active = False
+    last_ad_message_id = None
+
+    bot.answer_callback_query(call.id, "🗑️ Реклама удалена!", show_alert=True)
+
+    # Обновляем сообщение с настройками
+    markup = types.InlineKeyboardMarkup()
+    btn1 = types.InlineKeyboardButton("📸 Установить фото", callback_data="set_ad_photo")
+    btn2 = types.InlineKeyboardButton("⏱️ Установить интервал", callback_data="set_ad_interval")
+    btn5 = types.InlineKeyboardButton("🔙 Назад", callback_data="back_to_admin")
+    markup.add(btn1)
+    markup.add(btn2)
+    markup.add(btn5)
+
+    ad_info = f"📢 НАСТРОЙКИ АВТОМАТИЧЕСКОЙ РЕКЛАМЫ\n\n"
+    ad_info += f"Статус: 🔴 НЕ АКТИВНА\n"
+    ad_info += f"Интервал: не установлен\n"
+    ad_info += f"❌ Фото не установлено\n"
+
+    bot.edit_message_text(ad_info, call.message.chat.id, call.message.message_id, reply_markup=markup)
+
+
+# ===== НАЗАД В АДМИНКУ =====
+@bot.callback_query_handler(func=lambda call: call.data == "back_to_admin")
+def back_to_admin_handler(call):
+    if call.message.chat.id not in ADMINS:
+        bot.answer_callback_query(call.id, "❌ Нет доступа")
+        return
+
+    bot.answer_callback_query(call.id)
+    bot.delete_message(call.message.chat.id, call.message.message_id)
+
+    markup = types.InlineKeyboardMarkup()
+    btn1 = types.InlineKeyboardButton("📢 Рассылка (фото)", callback_data="newsletter_photo")
+    btn2 = types.InlineKeyboardButton("📢 Рассылка (текст)", callback_data="newsletter_text")
+    btn3 = types.InlineKeyboardButton("📊 Статистика", callback_data="stats")
+    btn4 = types.InlineKeyboardButton("👥 Список пользователей", callback_data="users_list")
+    btn5 = types.InlineKeyboardButton("🔄 НАСТРОЙКА РЕКЛАМЫ", callback_data="ad_settings")
+    markup.add(btn1)
+    markup.add(btn2)
+    markup.add(btn3)
+    markup.add(btn4)
+    markup.add(btn5)
+
+    bot.send_message(call.message.chat.id,
                      "👑 Добро пожаловать в админ панель!\nВыберите действие:",
                      reply_markup=markup)
 
@@ -150,10 +474,18 @@ def stats_handler(call):
 
     bot.answer_callback_query(call.id)
     users = get_users()
+
+    ad_status = "Активна" if ad_active else "Не активна"
+    interval_hours = ad_interval // 3600 if ad_interval else "не установлен"
+
     bot.send_message(call.message.chat.id,
-                     f"📊 Статистика бота:\n\n"
+                     f"📊 СТАТИСТИКА БОТА:\n\n"
                      f"👥 Всего пользователей: {len(users)}\n"
-                     f"🆔 Ваш ID: {call.from_user.id}")
+                     f"🆔 Ваш ID: {call.from_user.id}\n\n"
+                     f"📢 АВТОМАТИЧЕСКАЯ РЕКЛАМА:\n"
+                     f"Статус: {ad_status}\n"
+                     f"Интервал: {interval_hours} час(ов)\n"
+                     f"Фото: {'✅' if ad_photo_id else '❌'}")
 
 
 # ===== СПИСОК ПОЛЬЗОВАТЕЛЕЙ =====
@@ -1238,6 +1570,10 @@ if __name__ == "__main__":
     print("=" * 50)
     print("Админы:", ADMINS)
     print("Токен:", TOKEN)
+    print("=" * 50)
+    print("АВТОМАТИЧЕСКАЯ РЕКЛАМА:")
+    print(f"Интервал: {ad_interval // 3600} час(ов)")
+    print("Статус: ОЖИДАЕТ НАСТРОЙКИ")
     print("=" * 50)
     print("Для остановки нажмите Ctrl+C")
     print("=" * 50)
