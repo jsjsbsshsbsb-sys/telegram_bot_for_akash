@@ -4,19 +4,27 @@ from telebot import types
 TOKEN = "8564117995:AAE7qeTwhmN8y2WVg02t53zNNwIwvT1J5Cw"
 bot = telebot.TeleBot(TOKEN)
 
-# ===== Проверка подписки =====
-def check_sub(user_id):
-    try:
-        member = bot.get_chat_member("@nastroyitut", user_id)
-        return member.status != "left"
-    except Exception as e:
-        print(e)
-        return False
 
+# ===== Проверка подписки =====
+def check_subscription(user_id):
+    CHANNEL_USERNAME = "@nastroytut"
+
+    try:
+        member = bot.get_chat_member(CHANNEL_USERNAME, user_id)
+
+        # если пользователь подписан
+        if member.status in ["creator", "administrator", "member"]:
+            return True
+        else:
+            return False
+
+    except Exception as e:
+        print("SUB CHECK ERROR:", e)
+        return False
 # ===== Старт бота =====
 @bot.message_handler(commands=["start"])
 def private_hendler(message):
-    if not check_sub(message.from_user.id):
+    if not check_subscription(message.from_user.id):
         markup = types.InlineKeyboardMarkup()
         subscribe_btn = types.InlineKeyboardButton("📢 Подписаться", url="https://t.me/nastroytut")
         check_sub_btn = types.InlineKeyboardButton("🟢 Проверить", callback_data="check_sub")
@@ -30,6 +38,7 @@ def private_hendler(message):
         return
     else:
         send_main_menu(message)
+
 
 # ===== Главная меню функция =====
 def send_main_menu(message):
@@ -47,10 +56,11 @@ def send_main_menu(message):
         reply_markup=markup_menu_buttons, parse_mode="html"
     )
 
+
 # ===== Обработка кнопки Проверить подписку =====
 @bot.callback_query_handler(func=lambda call: call.data == "check_sub")
 def check_sub_button(call):
-    if check_sub(call.from_user.id):
+    if check_subscription(call.from_user.id):
         bot.answer_callback_query(call.id, "✅ Вы подписаны! Можно пользоваться ботом.", show_alert=True)
         send_main_menu(call.message)
     else:
@@ -87,7 +97,9 @@ def phone_value(message):
         iphone_markup.add(iphone_17_btn)
         iphone_markup.add(go_back_btn)
         with open("iphone_sittings.jpg", "rb") as menu_logo:
-            bot.send_photo(message.chat.id,menu_logo,caption="<blockquote>Выберите свой IPhone из списка!</blockquote>", reply_markup=iphone_markup, parse_mode="html")
+            bot.send_photo(message.chat.id, menu_logo,
+                           caption="<blockquote>Выберите свой IPhone из списка!</blockquote>",
+                           reply_markup=iphone_markup, parse_mode="html")
 
     elif message.text == "🤖Android🤖":
         android_markup = types.InlineKeyboardMarkup()
@@ -108,7 +120,9 @@ def phone_value(message):
         android_markup.add(honor_btn)
         android_markup.add(go_back_samsung_btn)
         with open("android_sittings.jpg", "rb") as android_sittings:
-            bot.send_photo(message.chat.id,android_sittings,caption="<blockquote>Выберите свой Android в списке👇</blockquote>", reply_markup=android_markup, parse_mode="html")
+            bot.send_photo(message.chat.id, android_sittings,
+                           caption="<blockquote>Выберите свой Android в списке👇</blockquote>",
+                           reply_markup=android_markup, parse_mode="html")
 
     elif message.text == "ℹ️Разработчикиℹ️":
         markup_back = types.ReplyKeyboardMarkup(resize_keyboard=True)
@@ -121,33 +135,39 @@ def phone_value(message):
     elif message.text == "Назад":
         go_back_func(message)
 
+
 # ===== Callback handler =====
 @bot.callback_query_handler(func=lambda call: True)
 def callback_handler(call):
-
     go_back_markup = types.InlineKeyboardMarkup()
     go_back_btn = types.InlineKeyboardButton("🔙Назад🔙", callback_data="back")
     go_back_markup.add(go_back_btn)
-    #========== Samsung =========
+    # ========== Samsung =========
     if call.data == "samsung":
         bot.answer_callback_query(call.id)
         with open("samsung_sittings.jpg", "rb") as samsung_sittings:
             samsung_markup = types.InlineKeyboardMarkup()
             samsung_a_15_btn = types.InlineKeyboardButton("Samsung A15", callback_data="samsung_a_15")
-            samsung_a_10_s_btn = types.InlineKeyboardButton("Samsung A10S",callback_data="samsung_a_10_s")
+            samsung_a_10_s_btn = types.InlineKeyboardButton("Samsung A10S", callback_data="samsung_a_10_s")
             samsung_markup.add(samsung_a_15_btn)
             samsung_markup.add(samsung_a_10_s_btn)
-            bot.send_photo(call.message.chat.id,samsung_sittings ,caption="<blockquote>Выберите свою модель ниже👇</blockquote>", reply_markup=samsung_markup, parse_mode="html")
-        #========== Оброботка Samsung =======
+            bot.send_photo(call.message.chat.id, samsung_sittings,
+                           caption="<blockquote>Выберите свою модель ниже👇</blockquote>", reply_markup=samsung_markup,
+                           parse_mode="html")
+        # ========== Оброботка Samsung =======
     if call.data == "samsung_a_15":
         bot.answer_callback_query(call.id)
         with open("samsung_sittings.jpg", "rb") as samsung_sittings:
-            bot.send_photo(call.message.chat.id,samsung_sittings, caption="<blockquote>обзор: 119\nколлиматор: 100\n2х: 172\n4х: 188\n8х: 120\nсвободный обзор: на свое усмотрение ( рекомендую 150 )\nDpi: 582\nкнопка: 52</blockquote>",parse_mode="html", reply_markup=go_back_markup)
+            bot.send_photo(call.message.chat.id, samsung_sittings,
+                           caption="<blockquote>обзор: 119\nколлиматор: 100\n2х: 172\n4х: 188\n8х: 120\nсвободный обзор: на свое усмотрение ( рекомендую 150 )\nDpi: 582\nкнопка: 52</blockquote>",
+                           parse_mode="html", reply_markup=go_back_markup)
     elif call.data == "samsung_a_10_s":
         bot.answer_callback_query(call.id)
         with open("samsung_sittings.jpg", "rb") as samsung_sittings:
-            bot.send_photo(call.message.chat.id, samsung_sittings, caption="<blockquote>обзор: 199\nколлиматор: 190\n2х: 192\n4х: 193\n8х: 155\nсвободный обзор: на свое усмотрение ( рекомендую 150 )\nDpi: 449\nкнопка: 39</blockquote>", parse_mode="html", reply_markup=go_back_markup)
-    #==== Redmi ====
+            bot.send_photo(call.message.chat.id, samsung_sittings,
+                           caption="<blockquote>обзор: 199\nколлиматор: 190\n2х: 192\n4х: 193\n8х: 155\nсвободный обзор: на свое усмотрение ( рекомендую 150 )\nDpi: 449\nкнопка: 39</blockquote>",
+                           parse_mode="html", reply_markup=go_back_markup)
+    # ==== Redmi ====
     if call.data == "redmi":
         bot.answer_callback_query(call.id)
         with open("redmi_sittings.jpg", "rb") as redmi_sittings:
@@ -156,16 +176,22 @@ def callback_handler(call):
             redmi_10_a = types.InlineKeyboardButton("Redmi 10A", callback_data="redmi_10_a")
             redmi_markup.add(redmi_note_14)
             redmi_markup.add(redmi_10_a)
-            bot.send_photo(call.message.chat.id, redmi_sittings, caption="<blockquote>Выберите свою мадель ниже👇</blockquote>", parse_mode="html", reply_markup=redmi_markup)
+            bot.send_photo(call.message.chat.id, redmi_sittings,
+                           caption="<blockquote>Выберите свою мадель ниже👇</blockquote>", parse_mode="html",
+                           reply_markup=redmi_markup)
     if call.data == "redmi_note_14":
         bot.answer_callback_query(call.id)
         with open("redmi_sittings.jpg", "rb") as redmi_sittings:
-            bot.send_photo(call.message.chat.id, redmi_sittings, caption="Настройки на Redmi Note 14\n<blockquote>обзор: 189\nколлиматор: 181\n2х: 175\n4х: 167\n8х: 111\nсвободный обзор: на свое усмотрение ( рекомендую 150 )\nDpi: 510\nкнопка: 40</blockquote>", parse_mode="html", reply_markup=go_back_markup)
+            bot.send_photo(call.message.chat.id, redmi_sittings,
+                           caption="Настройки на Redmi Note 14\n<blockquote>обзор: 189\nколлиматор: 181\n2х: 175\n4х: 167\n8х: 111\nсвободный обзор: на свое усмотрение ( рекомендую 150 )\nDpi: 510\nкнопка: 40</blockquote>",
+                           parse_mode="html", reply_markup=go_back_markup)
     elif call.data == "redmi_10_a":
         bot.answer_callback_query(call.id)
         with open("redmi_sittings.jpg", "rb") as redmi_sittings:
-            bot.send_photo(call.message.chat.id, redmi_sittings, caption="Настройки на Redmi 10A\n<blockquote>обзор: 198\nколлиматор: 190\n2х: 177\n4х: 170\n8х: 110\nсвободный обзор: на свое усмотрение ( рекомендую 150 )\nDpi: 510\nкнопка: 51</blockquote>",parse_mode="html", reply_markup=go_back_markup)
-    #======== Tecno ========
+            bot.send_photo(call.message.chat.id, redmi_sittings,
+                           caption="Настройки на Redmi 10A\n<blockquote>обзор: 198\nколлиматор: 190\n2х: 177\n4х: 170\n8х: 110\nсвободный обзор: на свое усмотрение ( рекомендую 150 )\nDpi: 510\nкнопка: 51</blockquote>",
+                           parse_mode="html", reply_markup=go_back_markup)
+    # ======== Tecno ========
     if call.data == "tecno":
         bot.answer_callback_query(call.id)
         tecno_markup = types.InlineKeyboardMarkup()
@@ -173,15 +199,20 @@ def callback_handler(call):
         tecno_spark_7 = types.InlineKeyboardButton("Tecno Spark 7", callback_data="tecno_spark_7")
         tecno_markup.add(tecno_spark_30)
         tecno_markup.add(tecno_spark_7)
-        bot.send_message(call.message.chat.id, "<blockquote>Выберите свою модель ниже👇</blockquote>", parse_mode="html", reply_markup=tecno_markup)
+        bot.send_message(call.message.chat.id, "<blockquote>Выберите свою модель ниже👇</blockquote>", parse_mode="html",
+                         reply_markup=tecno_markup)
     if call.data == "tecno_spark_30":
         bot.answer_callback_query(call.id)
-        bot.send_message(call.message.chat.id, "<blockquote>обзор: 183\nколлиматор: 178\n2х: 165\n4х: 171\n8х: 150\nсвободный обзор: на свое усмотрение ( рекомендую 150 )\nDpi: 480\nкнопка: 40</blockquote>",parse_mode="html", reply_markup=go_back_markup)
+        bot.send_message(call.message.chat.id,
+                         "<blockquote>обзор: 183\nколлиматор: 178\n2х: 165\n4х: 171\n8х: 150\nсвободный обзор: на свое усмотрение ( рекомендую 150 )\nDpi: 480\nкнопка: 40</blockquote>",
+                         parse_mode="html", reply_markup=go_back_markup)
     if call.data == "tecno_spark_7":
         bot.answer_callback_query(call.id)
-        bot.send_message(call.message.chat.id, "<blockquote>обзор: 192\nколлиматор: 188\n2х: 198\n4х: 155\n8х: 105\nсвободный обзор: на свое усмотрение ( рекомендую 150 )\nDpi: 470\nкнопка: 37</blockquote>",parse_mode="html", reply_markup=go_back_markup)
-    
-    #======== Realme =======
+        bot.send_message(call.message.chat.id,
+                         "<blockquote>обзор: 192\nколлиматор: 188\n2х: 198\n4х: 155\n8х: 105\nсвободный обзор: на свое усмотрение ( рекомендую 150 )\nDpi: 470\nкнопка: 37</blockquote>",
+                         parse_mode="html", reply_markup=go_back_markup)
+
+    # ======== Realme =======
     if call.data == "realme":
         bot.answer_callback_query(call.id)
         with open("realme_sittings.jpg", "rb") as realme_sittings:
@@ -190,51 +221,69 @@ def callback_handler(call):
             realme_8_btn = types.InlineKeyboardButton("Realme 8", callback_data="realme_8")
             realme_markup.add(realme_12_btn)
             realme_markup.add(realme_8_btn)
-            bot.send_photo(call.message.chat.id,realme_sittings,caption ="<blockquote>Выберите свою модель ниже👇</blockquote>",reply_markup=realme_markup, parse_mode="html")
+            bot.send_photo(call.message.chat.id, realme_sittings,
+                           caption="<blockquote>Выберите свою модель ниже👇</blockquote>", reply_markup=realme_markup,
+                           parse_mode="html")
     if call.data == "realme_12":
         bot.answer_callback_query(call.id)
         with open("realme_sittings.jpg", "rb") as realme_sittings:
-            bot.send_photo(call.message.chat.id, realme_sittings, caption="<blockquote>обзор: 188\nколлиматор: 180\n2х: 174\n4х: 168\n8х: 111\nсвободный обзор: на свое усмотрение ( рекомендую 150 )\nDpi: 455\nкнопка: 50</blockquote>", parse_mode="html", reply_markup=go_back_markup)
+            bot.send_photo(call.message.chat.id, realme_sittings,
+                           caption="<blockquote>обзор: 188\nколлиматор: 180\n2х: 174\n4х: 168\n8х: 111\nсвободный обзор: на свое усмотрение ( рекомендую 150 )\nDpi: 455\nкнопка: 50</blockquote>",
+                           parse_mode="html", reply_markup=go_back_markup)
     elif call.data == "realme_8":
         bot.answer_callback_query(call.id)
         with open("realme_sittings.jpg", "rb") as realme_sittings:
-            bot.send_photo(call.message.chat.id, realme_sittings, caption="<blockquote>обзор: 177\nколлиматор: 159\n2х: 174\n4х: 181\n8х: 172\nсвободный обзор: на свое усмотрение ( рекомендую 150 )\nDpi: 500\nкнопка: 48</blockquote>", parse_mode="html", reply_markup=go_back_markup)
+            bot.send_photo(call.message.chat.id, realme_sittings,
+                           caption="<blockquote>обзор: 177\nколлиматор: 159\n2х: 174\n4х: 181\n8х: 172\nсвободный обзор: на свое усмотрение ( рекомендую 150 )\nDpi: 500\nкнопка: 48</blockquote>",
+                           parse_mode="html", reply_markup=go_back_markup)
     elif call.data == "realme_8":
         bot.answer_callback_query(call.id)
         with open("realme_sittings.jpg", "rb") as realme_sittings:
-            bot.send_photo(call.message.chat.id, realme_sittings, caption="<blockquote>обзор: 177\nколлиматор: 159\n2х: 174\n4х: 181\n8х: 172\nсвободный обзор: на свое усмотрение ( рекомендую 150 )\nDpi: 500\nкнопка: 48</blockquote>", parse_mode="html", reply_markup=go_back_markup)
-        #===== Poco =======
+            bot.send_photo(call.message.chat.id, realme_sittings,
+                           caption="<blockquote>обзор: 177\nколлиматор: 159\n2х: 174\n4х: 181\n8х: 172\nсвободный обзор: на свое усмотрение ( рекомендую 150 )\nDpi: 500\nкнопка: 48</blockquote>",
+                           parse_mode="html", reply_markup=go_back_markup)
+        # ===== Poco =======
     if call.data == "poco":
         bot.answer_callback_query(call.id)
         with open("poco_sittings.jpg", "rb") as poco_sittings:
             poco_markup = types.InlineKeyboardMarkup()
             poco_x4_gt = types.InlineKeyboardButton("Poco X4 GT", callback_data="poco_x4_gt")
             poco_markup.add(poco_x4_gt)
-            bot.send_photo(call.message.chat.id, poco_sittings ,caption="<blockquote>Выберите свою модель ниже👇</blockquote>", reply_markup=poco_markup, parse_mode="html")
+            bot.send_photo(call.message.chat.id, poco_sittings,
+                           caption="<blockquote>Выберите свою модель ниже👇</blockquote>", reply_markup=poco_markup,
+                           parse_mode="html")
     if call.data == "poco_x4_gt":
         bot.answer_callback_query(call.id)
         with open("poco_sittings.jpg", "rb") as poco_sittings:
-            bot.send_photo(call.message.chat.id, poco_sittings, caption="Настройки на Poco X4 GT<blockquote>обзор: 197\nколлиматор: 188\n2х: 178\n4х: 170\n8х: 155\nсвободный обзор: на свое усмотрение ( рекомендую 150 )\nDpi: 520\nкнопка: 45</blockquote>", parse_mode="html", reply_markup=go_back_markup)
-    #====== Huawei ======
+            bot.send_photo(call.message.chat.id, poco_sittings,
+                           caption="Настройки на Poco X4 GT<blockquote>обзор: 197\nколлиматор: 188\n2х: 178\n4х: 170\n8х: 155\nсвободный обзор: на свое усмотрение ( рекомендую 150 )\nDpi: 520\nкнопка: 45</blockquote>",
+                           parse_mode="html", reply_markup=go_back_markup)
+    # ====== Huawei ======
     if call.data == "huawei":
         bot.answer_callback_query(call.id)
         huawei_markup = types.InlineKeyboardMarkup()
         huawei_nova_8_i = types.InlineKeyboardButton("Huawei Nova 8I", callback_data="huawei_nova_8_i")
         huawei_markup.add(huawei_nova_8_i)
-        bot.send_message(call.message.chat.id, "<blockquote>Выберите свою мадель ниже👇</blockquote>",parse_mode="html", reply_markup=huawei_markup)
+        bot.send_message(call.message.chat.id, "<blockquote>Выберите свою мадель ниже👇</blockquote>", parse_mode="html",
+                         reply_markup=huawei_markup)
     if call.data == "huawei_nova_8_i":
         bot.answer_callback_query(call.id)
-        bot.send_message(call.message.chat.id, "Настройки на Huawei Nova 8I\n<blockquote>обзор: 200\nколлиматор: 167\n2х: 174\n4х: 106\n8х: 91\nсвободный обзор: на свое усмотрение ( рекомендую 150 )\nDpi: 458\nкнопка: 44</blockquote>", parse_mode="html", reply_markup=go_back_markup)
-    #======== Honor =========
+        bot.send_message(call.message.chat.id,
+                         "Настройки на Huawei Nova 8I\n<blockquote>обзор: 200\nколлиматор: 167\n2х: 174\n4х: 106\n8х: 91\nсвободный обзор: на свое усмотрение ( рекомендую 150 )\nDpi: 458\nкнопка: 44</blockquote>",
+                         parse_mode="html", reply_markup=go_back_markup)
+    # ======== Honor =========
     if call.data == "honor":
         bot.answer_callback_query(call.id)
         honor_markup = types.InlineKeyboardMarkup()
         honor_10_x_lite = types.InlineKeyboardButton("Honor 10X Lite", callback_data="honor_10_x_lite")
         honor_markup.add(honor_10_x_lite)
-        bot.send_message(call.message.chat.id, "<blockquote>Выберите свою модель ниже👇</blockquote>", parse_mode="html", reply_markup=honor_markup)
+        bot.send_message(call.message.chat.id, "<blockquote>Выберите свою модель ниже👇</blockquote>", parse_mode="html",
+                         reply_markup=honor_markup)
     if call.data == "honor_10_x_lite":
         bot.answer_callback_query(call.id)
-        bot.send_message(call.message.chat.id, "Настрйоки на Honor 10X Lite\n<blockquote>обзор: 192\nколлиматор: 177\n2х: 178\n4х: 154\n8х: 150\nсвободный обзор: на свое усмотрение ( рекомендую 150 )\nDpi: 485\nкнопка: 39</blockquote>", parse_mode="html", reply_markup=go_back_markup)
+        bot.send_message(call.message.chat.id,
+                         "Настрйоки на Honor 10X Lite\n<blockquote>обзор: 192\nколлиматор: 177\n2х: 178\n4х: 154\n8х: 150\nсвободный обзор: на свое усмотрение ( рекомендую 150 )\nDpi: 485\nкнопка: 39</blockquote>",
+                         parse_mode="html", reply_markup=go_back_markup)
     # ===== iPhone 7 =====
     if call.data == "iphone_7":
         iph_7_markup = types.InlineKeyboardMarkup()
@@ -243,13 +292,18 @@ def callback_handler(call):
         iph_7_markup.add(iphone_7_base_btn)
         iph_7_markup.add(iphone_7_plus_btn)
         bot.answer_callback_query(call.id)
-        bot.send_message(call.message.chat.id, "Выберите модель IPhone 7👇", reply_markup=iph_7_markup, parse_mode="html")
+        bot.send_message(call.message.chat.id, "Выберите модель IPhone 7👇", reply_markup=iph_7_markup,
+                         parse_mode="html")
     elif call.data == "iphone_7_base":
         bot.answer_callback_query(call.id)
-        bot.send_message(call.message.chat.id, "⚙️Настройки на IPhone 7 Base\n<blockquote>DPI 31\nОбзор 170\nКоллиматор 198\n2x 200 741\n4x 200\nСнайп прицел 200\nСвободный обзор 200\nКнопка 44 </blockquote>", reply_markup=go_back_markup, parse_mode="html")
+        bot.send_message(call.message.chat.id,
+                         "⚙️Настройки на IPhone 7 Base\n<blockquote>DPI 31\nОбзор 170\nКоллиматор 198\n2x 200 741\n4x 200\nСнайп прицел 200\nСвободный обзор 200\nКнопка 44 </blockquote>",
+                         reply_markup=go_back_markup, parse_mode="html")
     elif call.data == "iphone_7_plus":
         bot.answer_callback_query(call.id)
-        bot.send_message(call.message.chat.id, "⚙️Настройки на IPhone 7 Plus\n<blockquote>DPI 54\nОбзор 178\nКоллиматор 152\n2x 129\n4х 121\nСнайп прицел 137\nСвободный обзор 76\nКнопка огня: 46 </blockquote>", reply_markup=go_back_markup, parse_mode="html")
+        bot.send_message(call.message.chat.id,
+                         "⚙️Настройки на IPhone 7 Plus\n<blockquote>DPI 54\nОбзор 178\nКоллиматор 152\n2x 129\n4х 121\nСнайп прицел 137\nСвободный обзор 76\nКнопка огня: 46 </blockquote>",
+                         reply_markup=go_back_markup, parse_mode="html")
 
     # ===== iPhone 8 =====
     if call.data == "iphone_8":
@@ -259,13 +313,18 @@ def callback_handler(call):
         iph_8_markup.add(iphone_8_base_btn)
         iph_8_markup.add(iphone_8_plus_btn)
         bot.answer_callback_query(call.id)
-        bot.send_message(call.message.chat.id, "Выберите модель IPhone 8👇", reply_markup=iph_8_markup, parse_mode="html")
+        bot.send_message(call.message.chat.id, "Выберите модель IPhone 8👇", reply_markup=iph_8_markup,
+                         parse_mode="html")
     elif call.data == "iphone_8_base":
         bot.answer_callback_query(call.id)
-        bot.send_message(call.message.chat.id, "⚙️Настройки на IPhone 8 Base\n<blockquote>Обзор: 167\nКоллиматор: 185\n2x Прицел: 181\n4x Прицел: 173\nКнопка: 50%\nDPI: Стандарт</blockquote>", reply_markup=go_back_markup, parse_mode="html")
+        bot.send_message(call.message.chat.id,
+                         "⚙️Настройки на IPhone 8 Base\n<blockquote>Обзор: 167\nКоллиматор: 185\n2x Прицел: 181\n4x Прицел: 173\nКнопка: 50%\nDPI: Стандарт</blockquote>",
+                         reply_markup=go_back_markup, parse_mode="html")
     elif call.data == "iphone_8_plus":
         bot.answer_callback_query(call.id)
-        bot.send_message(call.message.chat.id, "⚙️Настройки на IPhone 8 Plus<blockquote>\nDPI 31\nОбзор 100\nКоллиматор 187\n2x 200\n4x 200\nСнайп прицел 200\nСвободный обзор 100\nКнопка 44</blockquote>", reply_markup=go_back_markup, parse_mode="html")
+        bot.send_message(call.message.chat.id,
+                         "⚙️Настройки на IPhone 8 Plus<blockquote>\nDPI 31\nОбзор 100\nКоллиматор 187\n2x 200\n4x 200\nСнайп прицел 200\nСвободный обзор 100\nКнопка 44</blockquote>",
+                         reply_markup=go_back_markup, parse_mode="html")
 
     # ===== iPhone X (10) =====
     if call.data == "iphone_10":
@@ -282,16 +341,24 @@ def callback_handler(call):
         bot.send_message(call.message.chat.id, "Выберите модель IPhone X👇", reply_markup=iph_10_markup)
     elif call.data == "iphone_x_r":
         bot.answer_callback_query(call.id)
-        bot.send_message(call.message.chat.id, "⚙️Настройки на IPhone XR\n<blockquote>Dpi 120\nобзор 129\nКоллиматор 99\n2x 156\n4x 164\nСнайп прицел 100\nСвободный обзор 100\nКнопка огня 36</blockquote>", reply_markup=go_back_markup, parse_mode="html")
+        bot.send_message(call.message.chat.id,
+                         "⚙️Настройки на IPhone XR\n<blockquote>Dpi 120\nобзор 129\nКоллиматор 99\n2x 156\n4x 164\nСнайп прицел 100\nСвободный обзор 100\nКнопка огня 36</blockquote>",
+                         reply_markup=go_back_markup, parse_mode="html")
     elif call.data == "iphone_10_base":
         bot.answer_callback_query(call.id)
-        bot.send_message(call.message.chat.id, "⚙️Настройки на IPhone X Base\n<blockquote>Dpi 31\nОбзор 177\nКоллиматор 195\n2x 198\n4x 20\nСнайп прицел 200\nСвободный обзор 200\nКнопка 49</blockquote>", reply_markup=go_back_markup, parse_mode="html")
+        bot.send_message(call.message.chat.id,
+                         "⚙️Настройки на IPhone X Base\n<blockquote>Dpi 31\nОбзор 177\nКоллиматор 195\n2x 198\n4x 20\nСнайп прицел 200\nСвободный обзор 200\nКнопка 49</blockquote>",
+                         reply_markup=go_back_markup, parse_mode="html")
     elif call.data == "iphone_10_s":
         bot.answer_callback_query(call.id)
-        bot.send_message(call.message.chat.id, "⚙️Настройки на IPhone XS\n<blockquote>Dpi 49\nОбзор 100\nКоллиматор 120\n2x 100\n4x 200\nСнайп прицел 200\nСвободный обзор 100\nКнопка 44</blockquote>", reply_markup=go_back_markup)
+        bot.send_message(call.message.chat.id,
+                         "⚙️Настройки на IPhone XS\n<blockquote>Dpi 49\nОбзор 100\nКоллиматор 120\n2x 100\n4x 200\nСнайп прицел 200\nСвободный обзор 100\nКнопка 44</blockquote>",
+                         reply_markup=go_back_markup)
     elif call.data == "iphone_10_s_max":
         bot.answer_callback_query(call.id)
-        bot.send_message(call.message.chat.id, "⚙️Настоойки на IPhone XS Max\n<blockquote>Обзор: 175\nКоллиматор: 185\n2x Прицел: 195\n4x Прицел: 173\nКнопка: 53%\nDPI: 31</blockquote>", reply_markup=go_back_markup, parse_mode="html")
+        bot.send_message(call.message.chat.id,
+                         "⚙️Настоойки на IPhone XS Max\n<blockquote>Обзор: 175\nКоллиматор: 185\n2x Прицел: 195\n4x Прицел: 173\nКнопка: 53%\nDPI: 31</blockquote>",
+                         reply_markup=go_back_markup, parse_mode="html")
 
     # ===== iPhone 11 =====
     if call.data == "iphone_11":
@@ -306,13 +373,19 @@ def callback_handler(call):
         bot.send_message(call.message.chat.id, "Выберите модель IPhone 11👇", reply_markup=iph_11_markup)
     elif call.data == "iphone_11_base":
         bot.answer_callback_query(call.id)
-        bot.send_message(call.message.chat.id, "⚙️Настройки на IPhone 11\n<blockquote>Обзор 149\nКоллиматор 150\n2х 200\n4х 180\nСнайп прицел 200\nСвободный обзор 200\nКнопка огня 39\nDPI: 31</blockquote>", reply_markup=go_back_markup, parse_mode="html")
+        bot.send_message(call.message.chat.id,
+                         "⚙️Настройки на IPhone 11\n<blockquote>Обзор 149\nКоллиматор 150\n2х 200\n4х 180\nСнайп прицел 200\nСвободный обзор 200\nКнопка огня 39\nDPI: 31</blockquote>",
+                         reply_markup=go_back_markup, parse_mode="html")
     elif call.data == "iphone_11_pro":
         bot.answer_callback_query(call.id)
-        bot.send_message(call.message.chat.id, "⚙️Настройки на IPhone 11 Pro\n<blockquote>обзор:170\nколлиматор:165\n2х прицел:155\n4х прицел:135\nснайперский прицел:110\nСвободная камера:130\n58-62 кнопка огня</blockquote>", reply_markup=go_back_markup, parse_mode="html")
+        bot.send_message(call.message.chat.id,
+                         "⚙️Настройки на IPhone 11 Pro\n<blockquote>обзор:170\nколлиматор:165\n2х прицел:155\n4х прицел:135\nснайперский прицел:110\nСвободная камера:130\n58-62 кнопка огня</blockquote>",
+                         reply_markup=go_back_markup, parse_mode="html")
     elif call.data == "iphone_11_pro_max":
         bot.answer_callback_query(call.id)
-        bot.send_message(call.message.chat.id, "⚙️Настройки на IPhone 11 Pro Max\n<blockquote>Обзор 108\nКоллиматор  94\n2x 125\n4x 124\nСнайп прицел 66\nСвободный обзор 41\nDpi: 100\nКнопка огня: 45</blockquote>", reply_markup=go_back_markup, parse_mode="html")
+        bot.send_message(call.message.chat.id,
+                         "⚙️Настройки на IPhone 11 Pro Max\n<blockquote>Обзор 108\nКоллиматор  94\n2x 125\n4x 124\nСнайп прицел 66\nСвободный обзор 41\nDpi: 100\nКнопка огня: 45</blockquote>",
+                         reply_markup=go_back_markup, parse_mode="html")
 
     # ===== iPhone 12 =====
     if call.data == "iphone_12":
@@ -329,16 +402,24 @@ def callback_handler(call):
         bot.send_message(call.message.chat.id, "Выберите модель IPhone 12👇", reply_markup=iph_12_markup)
     elif call.data == "iphone_12_base":
         bot.answer_callback_query(call.id)
-        bot.send_message(call.message.chat.id, "⚙️Настройки IPhone 12\n<blockquote>Обзор: 165\nКоллиматор: 158\n2x: 142\n4x: 122\nСнайп прицел: 98\nСвободный обзор: 110\nКнопка огня: 50\nDpi: 33</blockquote>", reply_markup=go_back_markup, parse_mode="html")
+        bot.send_message(call.message.chat.id,
+                         "⚙️Настройки IPhone 12\n<blockquote>Обзор: 165\nКоллиматор: 158\n2x: 142\n4x: 122\nСнайп прицел: 98\nСвободный обзор: 110\nКнопка огня: 50\nDpi: 33</blockquote>",
+                         reply_markup=go_back_markup, parse_mode="html")
     elif call.data == "iphone_12_mini":
         bot.answer_callback_query(call.id)
-        bot.send_message(call.message.chat.id, "⚙️Настройки IPhone 12 Mini\n<blockquote>Обзор: 158\nКоллиматор: 150\n2x: 135\n4x: 115\nСнайп прицел: 95\nСвободный обзор: 105\nКнопка огня: 48\nDpi</blockquote>: 42", reply_markup=go_back_markup, parse_mode="html")
+        bot.send_message(call.message.chat.id,
+                         "⚙️Настройки IPhone 12 Mini\n<blockquote>Обзор: 158\nКоллиматор: 150\n2x: 135\n4x: 115\nСнайп прицел: 95\nСвободный обзор: 105\nКнопка огня: 48\nDpi</blockquote>: 42",
+                         reply_markup=go_back_markup, parse_mode="html")
     elif call.data == "iphone_12_pro":
         bot.answer_callback_query(call.id)
-        bot.send_message(call.message.chat.id, "⚙️Настройки IPhone 12 Pro\n<blockquote>Обзор: 168\nКоллиматор: 160\n2x: 145\n4x: 125\nСнайп прицел: 100\nСвободный обзор: 112\nКнопка огня: 50\nDpi: 35</blockquote>", reply_markup=go_back_markup, parse_mode="html")
+        bot.send_message(call.message.chat.id,
+                         "⚙️Настройки IPhone 12 Pro\n<blockquote>Обзор: 168\nКоллиматор: 160\n2x: 145\n4x: 125\nСнайп прицел: 100\nСвободный обзор: 112\nКнопка огня: 50\nDpi: 35</blockquote>",
+                         reply_markup=go_back_markup, parse_mode="html")
     elif call.data == "iphone_12_pro_max":
         bot.answer_callback_query(call.id)
-        bot.send_message(call.message.chat.id, "⚙️Настройки IPhone 12 Pro Max\n<blockquote>Обзор: 172\nКоллиматор: 165\n2x: 148\n4x: 128\nСнайп прицел: 102\nСвободный обзор: 115\nКнопка огня: 52\nDpi: стандарт</blockquote>", reply_markup=go_back_markup, parse_mode="html")
+        bot.send_message(call.message.chat.id,
+                         "⚙️Настройки IPhone 12 Pro Max\n<blockquote>Обзор: 172\nКоллиматор: 165\n2x: 148\n4x: 128\nСнайп прицел: 102\nСвободный обзор: 115\nКнопка огня: 52\nDpi: стандарт</blockquote>",
+                         reply_markup=go_back_markup, parse_mode="html")
 
     # ===== iPhone 13 =====
     if call.data == "iphone_13":
@@ -355,17 +436,24 @@ def callback_handler(call):
         bot.send_message(call.message.chat.id, "Выберите модель IPhone 13👇", reply_markup=iph_13_markup)
     elif call.data == "iphone_13_base":
         bot.answer_callback_query(call.id)
-        bot.send_message(call.message.chat.id, "⚙️Настройки IPhone 13\n<blockquote>Обзор: 178\nКоллиматор: 170\n2x: 150\n4x: 130\nСнайп прицел: 105\nСвободный обзор: 120\nКнопка огня: 50\nDpi: стандарт</blockquote>", reply_markup=go_back_markup, parse_mode="html")
+        bot.send_message(call.message.chat.id,
+                         "⚙️Настройки IPhone 13\n<blockquote>Обзор: 178\nКоллиматор: 170\n2x: 150\n4x: 130\nСнайп прицел: 105\nСвободный обзор: 120\nКнопка огня: 50\nDpi: стандарт</blockquote>",
+                         reply_markup=go_back_markup, parse_mode="html")
     elif call.data == "iphone_13_mini":
         bot.answer_callback_query(call.id)
-        bot.send_message(call.message.chat.id, "⚙️Настройки IPhone 13 Mini\n<blockquote>Обзор: 170\nКоллиматор: 162\n2x: 142\n4x: 122\nСнайп прицел: 98\nСвободный обзор: 110\nКнопка огня: 48\nDpi: Стандарт</blockquote>",reply_markup=go_back_markup, parse_mode="html")
+        bot.send_message(call.message.chat.id,
+                         "⚙️Настройки IPhone 13 Mini\n<blockquote>Обзор: 170\nКоллиматор: 162\n2x: 142\n4x: 122\nСнайп прицел: 98\nСвободный обзор: 110\nКнопка огня: 48\nDpi: Стандарт</blockquote>",
+                         reply_markup=go_back_markup, parse_mode="html")
     elif call.data == "iphone_13_pro":
         bot.answer_callback_query(call.id)
-        bot.send_message(call.message.chat.id, "⚙️Настройки IPhone 13 Pro\n<blockquote>Обзор: 161\nКоллиматор: 168\n2x: 148\n4x: 128\nСнайп прицел: 102\nСвободный обзор: 115\nКнопка огня: 50%\nDpi: 53</blockquote>", reply_markup=go_back_markup, parse_mode="html")
+        bot.send_message(call.message.chat.id,
+                         "⚙️Настройки IPhone 13 Pro\n<blockquote>Обзор: 161\nКоллиматор: 168\n2x: 148\n4x: 128\nСнайп прицел: 102\nСвободный обзор: 115\nКнопка огня: 50%\nDpi: 53</blockquote>",
+                         reply_markup=go_back_markup, parse_mode="html")
     elif call.data == "iphone_13_pro_max":
         bot.answer_callback_query(call.id)
-        bot.send_message(call.message.chat.id, "⚙️Настройки IPhone 13 Pro Max\n<blockquote>Обзор: 178\nКоллиматор: 170\n2x: 150\n4x: 130\nСнайп прицел: 105\nСвободный обзор: 118\nКнопка огня: 52\nДпиай: 37</blockquote>", reply_markup=go_back_markup, parse_mode="html")
-
+        bot.send_message(call.message.chat.id,
+                         "⚙️Настройки IPhone 13 Pro Max\n<blockquote>Обзор: 178\nКоллиматор: 170\n2x: 150\n4x: 130\nСнайп прицел: 105\nСвободный обзор: 118\nКнопка огня: 52\nДпиай: 37</blockquote>",
+                         reply_markup=go_back_markup, parse_mode="html")
 
     # ===== iPhone 14 =====
     if call.data == "iphone_14":
@@ -382,16 +470,24 @@ def callback_handler(call):
         bot.send_message(call.message.chat.id, "Выберите модель IPhone 14👇", reply_markup=iph_14_markup)
     elif call.data == "iphone_14_base":
         bot.answer_callback_query(call.id)
-        bot.send_message(call.message.chat.id, "⚙️Настройки IPhone 14\n<blockquote>Обзор: 180\nКоллиматор: 172\n2x: 152\n4x: 132\nСнайп прицел: 107\nСвободный обзор: 120\nКнопка огня: 50\nДпиай: стандарт</blockquote>", reply_markup=go_back_markup, parse_mode="html")
+        bot.send_message(call.message.chat.id,
+                         "⚙️Настройки IPhone 14\n<blockquote>Обзор: 180\nКоллиматор: 172\n2x: 152\n4x: 132\nСнайп прицел: 107\nСвободный обзор: 120\nКнопка огня: 50\nДпиай: стандарт</blockquote>",
+                         reply_markup=go_back_markup, parse_mode="html")
     elif call.data == "iphone_14_plus":
         bot.answer_callback_query(call.id)
-        bot.send_message(call.message.chat.id, "⚙️Настройки IPhone 14 Plus\n<blockquote>Обзор: 185\nКоллиматор: 176\n2x: 158\n4x: 138\nСнайп прицел: 110\nСвободный обзор: 125\nКнопка огня: 54\nДпиай: стандарт</blockquote>", reply_markup=go_back_markup, parse_mode="html")
+        bot.send_message(call.message.chat.id,
+                         "⚙️Настройки IPhone 14 Plus\n<blockquote>Обзор: 185\nКоллиматор: 176\n2x: 158\n4x: 138\nСнайп прицел: 110\nСвободный обзор: 125\nКнопка огня: 54\nДпиай: стандарт</blockquote>",
+                         reply_markup=go_back_markup, parse_mode="html")
     elif call.data == "iphone_14_pro":
         bot.answer_callback_query(call.id)
-        bot.send_message(call.message.chat.id, "⚙️Настройки IPhone 14 Pro\n<blockquote>Обзор: 187\nКоллиматор: 178\n2x: 160\n4x: 140\nСнайп прицел: 112\nСвободный обзор: 127\nКнопка огня: 52\nDpi: Стандарт</blockquote>", reply_markup=go_back_markup, parse_mode="html")
+        bot.send_message(call.message.chat.id,
+                         "⚙️Настройки IPhone 14 Pro\n<blockquote>Обзор: 187\nКоллиматор: 178\n2x: 160\n4x: 140\nСнайп прицел: 112\nСвободный обзор: 127\nКнопка огня: 52\nDpi: Стандарт</blockquote>",
+                         reply_markup=go_back_markup, parse_mode="html")
     elif call.data == "iphone_14_pro_max":
         bot.answer_callback_query(call.id)
-        bot.send_message(call.message.chat.id, "⚙️Настройки IPhone 14 Pro Max\n<blockquote>Обзор: 190\nКоллиматор: 182\n2x: 162\n4x: 142\nСнайп прицел: 115\nСвободный обзор: 130\nКнопка огня: 54\nDpi: стандарт</blockquote>", reply_markup=go_back_markup, parse_mode="html")
+        bot.send_message(call.message.chat.id,
+                         "⚙️Настройки IPhone 14 Pro Max\n<blockquote>Обзор: 190\nКоллиматор: 182\n2x: 162\n4x: 142\nСнайп прицел: 115\nСвободный обзор: 130\nКнопка огня: 54\nDpi: стандарт</blockquote>",
+                         reply_markup=go_back_markup, parse_mode="html")
 
     # ===== iPhone 15 =====
     if call.data == "iphone_15":
@@ -408,16 +504,24 @@ def callback_handler(call):
         bot.send_message(call.message.chat.id, "Выберите модель IPhone 15👇", reply_markup=iph_15_markup)
     elif call.data == "iphone_15_base":
         bot.answer_callback_query(call.id)
-        bot.send_message(call.message.chat.id, "⚙️Настройки IPhone 15\n<blockquote>Обзор: 192\nКоллиматор: 184\n2x: 164\n4x: 144\nСнайп прицел: 117\nСвободный обзор: 132\nКнопка огня: 50\nDpi: стандарт</blockquote>", reply_markup=go_back_markup, parse_mode="html")
+        bot.send_message(call.message.chat.id,
+                         "⚙️Настройки IPhone 15\n<blockquote>Обзор: 192\nКоллиматор: 184\n2x: 164\n4x: 144\nСнайп прицел: 117\nСвободный обзор: 132\nКнопка огня: 50\nDpi: стандарт</blockquote>",
+                         reply_markup=go_back_markup, parse_mode="html")
     elif call.data == "iphone_15_plus":
         bot.answer_callback_query(call.id)
-        bot.send_message(call.message.chat.id, "⚙️Настройки IPhone 15 Plus\n<blockquote>Обзор: 195\nКоллиматор: 186\n2x: 166\n4x: 146\nСнайп прицел: 118\nСвободный обзор: 134\nКнопка огня: 52\nDpi: Стандарт</blockquote>", reply_markup=go_back_markup, parse_mode="html")
+        bot.send_message(call.message.chat.id,
+                         "⚙️Настройки IPhone 15 Plus\n<blockquote>Обзор: 195\nКоллиматор: 186\n2x: 166\n4x: 146\nСнайп прицел: 118\nСвободный обзор: 134\nКнопка огня: 52\nDpi: Стандарт</blockquote>",
+                         reply_markup=go_back_markup, parse_mode="html")
     elif call.data == "iphone_15_pro":
         bot.answer_callback_query(call.id)
-        bot.send_message(call.message.chat.id, "⚙️Настройки IPhone 15 Pro\n<blockquote>Обзор: 198\nКоллиматор: 188\n2x: 168\n4x: 148\nСнайп прицел: 120\nСвободный обзор: 136\nКнопка огня: 52\nDpi: Стандарт</blockquote>", reply_markup=go_back_markup, parse_mode="html")
+        bot.send_message(call.message.chat.id,
+                         "⚙️Настройки IPhone 15 Pro\n<blockquote>Обзор: 198\nКоллиматор: 188\n2x: 168\n4x: 148\nСнайп прицел: 120\nСвободный обзор: 136\nКнопка огня: 52\nDpi: Стандарт</blockquote>",
+                         reply_markup=go_back_markup, parse_mode="html")
     elif call.data == "iphone_15_pro_max":
         bot.answer_callback_query(call.id)
-        bot.send_message(call.message.chat.id, "⚙️Настройки IPhone 15 Pro Max\n<blockquote>Обзор: 200\nКоллиматор: 190\n2x: 170\n4x: 150\nСнайп прицел: 122\nСвободный обзор: 138\nКнопка огня: 54\nDpi: Стандарт</blockquote>", reply_markup=go_back_markup, parse_mode="html")
+        bot.send_message(call.message.chat.id,
+                         "⚙️Настройки IPhone 15 Pro Max\n<blockquote>Обзор: 200\nКоллиматор: 190\n2x: 170\n4x: 150\nСнайп прицел: 122\nСвободный обзор: 138\nКнопка огня: 54\nDpi: Стандарт</blockquote>",
+                         reply_markup=go_back_markup, parse_mode="html")
 
     # ===== iPhone 16 =====
     if call.data == "iphone_16":
@@ -436,19 +540,28 @@ def callback_handler(call):
         bot.send_message(call.message.chat.id, "Выберите модель IPhone 16👇", reply_markup=iph_16_markup)
     elif call.data == "iphone_16_base":
         bot.answer_callback_query(call.id)
-        bot.send_message(call.message.chat.id, "⚙️Настройки IPhone 16\n<blockquote>Обзор: 195\nКоллиматор: 185\n2x: 165\n4x: 145\nСнайп прицел: 120\nСвободный обзор: 135\nКнопка огня: 50\nDpi: стандарт</blockquote>", reply_markup=go_back_markup, parse_mode="html")
+        bot.send_message(call.message.chat.id,
+                         "⚙️Настройки IPhone 16\n<blockquote>Обзор: 195\nКоллиматор: 185\n2x: 165\n4x: 145\nСнайп прицел: 120\nСвободный обзор: 135\nКнопка огня: 50\nDpi: стандарт</blockquote>",
+                         reply_markup=go_back_markup, parse_mode="html")
     elif call.data == "iphone_16_e":
         bot.answer_callback_query(call.id)
-        bot.send_message(call.message.chat.id, "⚙️Настройки IPhone 16e\n<blockquote>Обзор: 138\nКоллиматор: 128\n2x: 123\n4x: 108\nСнайп прицел: 98\nСвободный обзор: 118\nКнопка огня: 50\nDpi: стандарт</blockquote>")
+        bot.send_message(call.message.chat.id,
+                         "⚙️Настройки IPhone 16e\n<blockquote>Обзор: 138\nКоллиматор: 128\n2x: 123\n4x: 108\nСнайп прицел: 98\nСвободный обзор: 118\nКнопка огня: 50\nDpi: стандарт</blockquote>")
     elif call.data == "iphone_16_plus":
         bot.answer_callback_query(call.id)
-        bot.send_message(call.message.chat.id, "⚙️Настройки IPhone 16 Plus\n<blockquote>Обзор: 198\nКоллиматор: 188\n2x: 168\n4x: 148\nСнайп прицел: 122\nСвободный обзор: 138\nКнопка огня: 52\nDpi: стандарт</blockquote>", reply_markup=go_back_markup, parse_mode="html")
+        bot.send_message(call.message.chat.id,
+                         "⚙️Настройки IPhone 16 Plus\n<blockquote>Обзор: 198\nКоллиматор: 188\n2x: 168\n4x: 148\nСнайп прицел: 122\nСвободный обзор: 138\nКнопка огня: 52\nDpi: стандарт</blockquote>",
+                         reply_markup=go_back_markup, parse_mode="html")
     elif call.data == "iphone_16_pro":
         bot.answer_callback_query(call.id)
-        bot.send_message(call.message.chat.id, "⚙️Настройки IPhone 16 Pro\n<blockquote>Обзор: 145\nКоллиматор: 135\n2x: 130\n4x: 115\nСнайп прицел: 105\nСвободный обзор: 125\nКнопка огня: 52\nDpi: стандарт</blockquote>", reply_markup=go_back_markup, parse_mode="html")
+        bot.send_message(call.message.chat.id,
+                         "⚙️Настройки IPhone 16 Pro\n<blockquote>Обзор: 145\nКоллиматор: 135\n2x: 130\n4x: 115\nСнайп прицел: 105\nСвободный обзор: 125\nКнопка огня: 52\nDpi: стандарт</blockquote>",
+                         reply_markup=go_back_markup, parse_mode="html")
     elif call.data == "iphone_16_pro_max":
         bot.answer_callback_query(call.id)
-        bot.send_message(call.message.chat.id, "⚙️Здесь будут настройки IPhone 16 Pro Max\n<blockquote>Обзор: 148\nКоллиматор: 138\n2x: 133\n4x: 118\nСнайп прицел: 108\nСвободный обзор: 128\nКнопка огня: 54\nДпиай: стандарт</blockquote>", reply_markup=go_back_markup, parse_mode="html")
+        bot.send_message(call.message.chat.id,
+                         "⚙️Здесь будут настройки IPhone 16 Pro Max\n<blockquote>Обзор: 148\nКоллиматор: 138\n2x: 133\n4x: 118\nСнайп прицел: 108\nСвободный обзор: 128\nКнопка огня: 54\nДпиай: стандарт</blockquote>",
+                         reply_markup=go_back_markup, parse_mode="html")
 
     # ===== iPhone 17 =====
     if call.data == "iphone_17":
@@ -465,16 +578,24 @@ def callback_handler(call):
         bot.send_message(call.message.chat.id, "Выберите модель IPhone 17👇", reply_markup=iph_17_markup)
     elif call.data == "iphone_17_base":
         bot.answer_callback_query(call.id)
-        bot.send_message(call.message.chat.id, "⚙️Настройки IPhone 17\n<blockquote>Обзор: 145\nКоллиматор: 135\n2x: 130\n4x: 115\nСнайп прицел: 105\nСвободный обзор: 125\nКнопка огня: 50%\nDpi: стандарт</blockquote>", reply_markup=go_back_markup, parse_mode="html")
+        bot.send_message(call.message.chat.id,
+                         "⚙️Настройки IPhone 17\n<blockquote>Обзор: 145\nКоллиматор: 135\n2x: 130\n4x: 115\nСнайп прицел: 105\nСвободный обзор: 125\nКнопка огня: 50%\nDpi: стандарт</blockquote>",
+                         reply_markup=go_back_markup, parse_mode="html")
     elif call.data == "iphone_17_air":
-        bot.answer_callback_query(call.id)      
-        bot.send_message(call.message.chat.id, "⚙️Настройки IPhone 17 Air\n<blockquote>Обзор: 147\nКоллиматор: 137\n2x: 132\n4x: 117\nСнайп прицел: 107\nСвободный обзор: 127\nКнопка огня: 52\nDpi: стандарт</blockquote>", reply_markup=go_back_markup, parse_mode="html")
+        bot.answer_callback_query(call.id)
+        bot.send_message(call.message.chat.id,
+                         "⚙️Настройки IPhone 17 Air\n<blockquote>Обзор: 147\nКоллиматор: 137\n2x: 132\n4x: 117\nСнайп прицел: 107\nСвободный обзор: 127\nКнопка огня: 52\nDpi: стандарт</blockquote>",
+                         reply_markup=go_back_markup, parse_mode="html")
     elif call.data == "iphone_17_pro":
         bot.answer_callback_query(call.id)
-        bot.send_message(call.message.chat.id, "⚙️Настройки IPhone 17 Pro\n<blockquote>Обзор: 150\nКоллиматор: 140\n2x: 135\n4x: 120\nСнайп прицел: 110\nСвободный обзор: 130\nКнопка огня: 52\nDpi: Стандарт</blockquote>", reply_markup=go_back_markup, parse_mode="html")
+        bot.send_message(call.message.chat.id,
+                         "⚙️Настройки IPhone 17 Pro\n<blockquote>Обзор: 150\nКоллиматор: 140\n2x: 135\n4x: 120\nСнайп прицел: 110\nСвободный обзор: 130\nКнопка огня: 52\nDpi: Стандарт</blockquote>",
+                         reply_markup=go_back_markup, parse_mode="html")
     elif call.data == "iphone_17_pro_max":
         bot.answer_callback_query(call.id)
-        bot.send_message(call.message.chat.id, "⚙️Настройки IPhone 17 Pro Max\n<blockquote>Обзор: 152\nКоллиматор: 142\n2x: 137\n4x: 122\nСнайп прицел: 112\nСвободный обзор: 132\nКнопка огня: 54\nDpi: стандарт</blockquote>", reply_markup=go_back_markup, parse_mode="html")
+        bot.send_message(call.message.chat.id,
+                         "⚙️Настройки IPhone 17 Pro Max\n<blockquote>Обзор: 152\nКоллиматор: 142\n2x: 137\n4x: 122\nСнайп прицел: 112\nСвободный обзор: 132\nКнопка огня: 54\nDpi: стандарт</blockquote>",
+                         reply_markup=go_back_markup, parse_mode="html")
 
     # ===== Кнопка Назад =====
     if call.data == "back":
@@ -487,7 +608,8 @@ def callback_handler(call):
         markup_menu_buttons.add(iphone_btn, android_btn)
         markup_menu_buttons.add(coders_btn, cooperation_btn)
         with open("menu_logo.jpg", "rb") as menu_logo:
-            bot.send_photo(call.message.chat.id,menu_logo, caption= "<blockquote>Вы вернулись в меню!</blockquote>", reply_markup=markup_menu_buttons, parse_mode="html")
+            bot.send_photo(call.message.chat.id, menu_logo, caption="<blockquote>Вы вернулись в меню!</blockquote>",
+                           reply_markup=markup_menu_buttons, parse_mode="html")
 
 
 # ===== Функция возврата =====
@@ -500,7 +622,8 @@ def go_back_func(message):
     markup_menu_buttons.add(iphone_btn, android_btn)
     markup_menu_buttons.add(coders_btn, cooperation_btn)
     with open("menu_logo.jpg", "rb") as menu_logo:
-        bot.send_photo(message.chat.id,menu_logo,caption= "<blockquote>📋Вы вернулись в меню!📋</blockquote>", reply_markup=markup_menu_buttons,parse_mode="html")
+        bot.send_photo(message.chat.id, menu_logo, caption="<blockquote>📋Вы вернулись в меню!📋</blockquote>",
+                       reply_markup=markup_menu_buttons, parse_mode="html")
 
 
 bot.polling(non_stop=True)
