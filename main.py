@@ -188,10 +188,12 @@ async def send_ad(user_id: int) -> bool:
 
 def get_main_menu_keyboard() -> InlineKeyboardMarkup:
     keyboard = [
-        [InlineKeyboardButton(text="🍎 IPhone", callback_data="main_iphone")],
-        [InlineKeyboardButton(text="🤖 Android", callback_data="main_android")],
-        [InlineKeyboardButton(text="ℹ️ Разработчики", callback_data="main_developers")],
-        [InlineKeyboardButton(text="🤳 Сотрудничество", callback_data="main_cooperation")]
+        [InlineKeyboardButton(text="🍎 IPhone", callback_data="main_iphone"), InlineKeyboardButton(text="🤖 Android", callback_data="main_android")],
+        [InlineKeyboardButton(
+            text="Купить💎",
+            url="https://t.me/GigaShop_tgbot",
+            style="primary"
+        )]
     ]
     return InlineKeyboardMarkup(inline_keyboard=keyboard)
 
@@ -376,21 +378,6 @@ async def main_android_callback(callback: CallbackQuery) -> None:
         reply_markup=get_android_keyboard()
     )
 
-@router.callback_query(F.data == "main_developers")
-async def main_developers_callback(callback: CallbackQuery) -> None:
-    await callback.answer()
-    await callback.message.edit_text(
-        "✅ Главные разработчики ✅:\n\n@Acash_ff\n@JustF12",
-        reply_markup=get_back_to_main()
-    )
-
-@router.callback_query(F.data == "main_cooperation")
-async def main_cooperation_callback(callback: CallbackQuery) -> None:
-    await callback.answer()
-    await callback.message.edit_text(
-        "Пишите сюда 👇\n\n@Acash_ff",
-        reply_markup=get_back_to_main()
-    )
 
 # ===== МЕНЮ ВЫБОРА МОДЕЛЕЙ IPHONE =====
 
