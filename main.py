@@ -188,7 +188,9 @@ async def send_ad(user_id: int) -> bool:
 
 def get_main_menu_keyboard() -> InlineKeyboardMarkup:
     keyboard = [
-        [InlineKeyboardButton(text="🍎 IPhone", callback_data="main_iphone"), InlineKeyboardButton(text="🤖 Android", callback_data="main_android")],
+        [InlineKeyboardButton(text="🍎 IPhone", callback_data="main_iphone")],
+        [InlineKeyboardButton(text="🤖 Android", callback_data="main_android")],
+        [InlineKeyboardButton(text="😎VIP Настройки", callback_data="vip_sittings")],
         [InlineKeyboardButton(
             text="Купить💎",
             url="https://t.me/GigaShop_tgbot",
@@ -196,6 +198,7 @@ def get_main_menu_keyboard() -> InlineKeyboardMarkup:
         )]
     ]
     return InlineKeyboardMarkup(inline_keyboard=keyboard)
+
 
 def get_subscription_keyboard() -> InlineKeyboardMarkup:
     keyboard = [
@@ -378,7 +381,14 @@ async def main_android_callback(callback: CallbackQuery) -> None:
         reply_markup=get_android_keyboard()
     )
 
-
+@router.callback_query(F.data == "vip_sittings")
+async def vip_sittins_callback(callback: CallbackQuery) -> None:
+    await callback.answer()
+    await callback.message.edit_text(
+        "Мы скоро добавим VIP настройки, ожидайте обновление бота...",
+        reply_markup=get_back_to_main()
+    )
+    
 # ===== МЕНЮ ВЫБОРА МОДЕЛЕЙ IPHONE =====
 
 @router.callback_query(F.data == "iphone_7")
