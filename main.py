@@ -192,7 +192,7 @@ def get_main_menu_keyboard() -> InlineKeyboardMarkup:
         [InlineKeyboardButton(text="🤖 Android", callback_data="main_android")],
         [InlineKeyboardButton(text="😎VIP Настройки", callback_data="vip_sittings")],
         [InlineKeyboardButton(
-            text="Купить💎",
+            text="Купить Алмазы💎",
             url="https://t.me/GigaShop_tgbot",
             style="primary"
         )]
